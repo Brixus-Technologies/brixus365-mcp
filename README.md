@@ -93,7 +93,7 @@ npx @modelcontextprotocol/inspector node dist/index.js
 
 ## Contributing
 
-Bug reports and pull requests welcome at https://github.com/brixus365/brixus-mcp.
+Bug reports and pull requests welcome at https://github.com/Brixus-Technologies/brixus365-mcp.
 
 ## License
 

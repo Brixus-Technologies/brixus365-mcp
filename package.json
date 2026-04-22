@@ -7,10 +7,10 @@
   "homepage": "https://brixus365.com/developers",
   "repository": {
     "type": "git",
-    "url": "https://github.com/brixus365/brixus-mcp.git"
+    "url": "https://github.com/Brixus-Technologies/brixus365-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/brixus365/brixus-mcp/issues"
+    "url": "https://github.com/Brixus-Technologies/brixus365-mcp/issues"
   },
   "keywords": ["mcp", "model-context-protocol", "email", "brixus365", "claude"],
   "type": "module",
