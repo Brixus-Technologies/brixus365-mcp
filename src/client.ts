@@ -161,7 +161,7 @@ export class BrixusClient {
       response = await this.fetchFn(url, {
         method: init.method,
         headers: {
-          Authorization: `Bearer ${this.apiKey}`,
+          "X-API-Key": this.apiKey,
           "Content-Type": "application/json",
           Accept: "application/json",
           "User-Agent": this.userAgent,

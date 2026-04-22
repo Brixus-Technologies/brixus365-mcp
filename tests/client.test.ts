@@ -91,7 +91,7 @@ describe("BrixusClient.sendEmail", () => {
     expect(url).toBe("https://api.example.test/api/v1/emails");
     expect(init.method).toBe("POST");
     const headers = init.headers as Record<string, string>;
-    expect(headers["Authorization"]).toBe("Bearer bx_preview_test_key");
+    expect(headers["X-API-Key"]).toBe("bx_preview_test_key");
     expect(headers["Content-Type"]).toBe("application/json");
     const body = JSON.parse(init.body as string);
     expect(body).toEqual({
