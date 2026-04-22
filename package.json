@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Model Context Protocol server for the Brixus Email API. Lets LLM agents send transactional email through Brixus using starter templates.",
   "license": "MIT",
-  "author": "Brixus <hello@brixus365.com>",
+  "author": "Brixus Technologies Private Limited <hello@brixus365.com>",
   "homepage": "https://brixus365.com/developers",
   "repository": {
     "type": "git",
