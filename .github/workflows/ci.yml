@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Smoke check (dist entry loads without syntax errors)
+        # We expect the smoke check to exit 1 (missing BRIXUS365_API_KEY);
+        # what matters is that the module loads without a syntax or
+        # import error. We grep stderr for the expected diagnostic and
+        # fail only if the process crashed with something else.
+        run: |
+          set +e
+          out=$(node dist/index.js 2>&1)
+          code=$?
+          echo "$out"
+          if [ "$code" -ne 1 ]; then
+            echo "Smoke check: expected exit 1 (missing API key), got $code" >&2
+            exit 1
+          fi
+          echo "$out" | grep -q "BRIXUS365_API_KEY" || {
+            echo "Smoke check: expected BRIXUS365_API_KEY diagnostic in stderr" >&2
+            exit 1
+          }
