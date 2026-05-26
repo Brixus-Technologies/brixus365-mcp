@@ -95,6 +95,21 @@ describe("brixus_send_email handler", () => {
     });
   });
 
+  it("rejects call when no content mode is provided", async () => {
+    const mock = makeMockServer();
+    const send = vi.fn();
+    registerSendEmailTool(
+      mock as unknown as Parameters<typeof registerSendEmailTool>[0],
+      makeFakeClient(send as unknown as BrixusClient["sendEmail"]),
+    );
+    const handler = mock.lastHandler();
+    // Schema allows all optional, but handler enforces exactly one mode
+    const result = await handler({ to: "alice@example.com" });
+    expect(result.isError).toBe(true);
+    expect(result.content[0]!.text).toContain("invalid_input");
+    expect(send).not.toHaveBeenCalled();
+  });
+
   it("upgrade_required error is surfaced with upgrade_url in text", async () => {
     const mock = makeMockServer();
     const err = new BrixusApiError(402, {
@@ -194,6 +209,15 @@ describe("brixus_send_email input schema", () => {
     const res = SendEmailInputSchema.safeParse({
       to: "a@b.co",
       starter_template: "auth-reset",
+    });
+    expect(res.success).toBe(true);
+  });
+
+  it("accepts array of recipients", () => {
+    const res = SendEmailInputSchema.safeParse({
+      to: ["a@b.co", "c@d.com"],
+      html: "<p>Hello</p>",
+      subject: "Test",
     });
     expect(res.success).toBe(true);
   });
