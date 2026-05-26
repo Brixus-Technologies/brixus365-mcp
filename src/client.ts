@@ -6,9 +6,8 @@
  *   2. Parse the unified ``{error: {...}}`` envelope into BrixusApiError.
  *   3. Never log or echo the API key.
  *
- * Out of scope: retries, caching, idempotency-key generation (the backend
- * handles idempotency internally for POST /v1/emails). Callers should not
- * retry on 5xx automatically - Claude can decide whether to retry.
+ * Out of scope: retries, caching. Callers should not retry on 5xx
+ * automatically - the LLM can decide whether to retry.
  */
 
 import { DEFAULT_API_BASE_URL, USER_AGENT_BASE } from "./constants.js";
@@ -17,17 +16,53 @@ import {
   type BrixusErrorEnvelope,
 } from "./errors.js";
 
+export interface AttachmentItem {
+  filename: string;
+  content: string;        // base64-encoded
+  content_type: string;  // MIME type
+}
+
 export interface SendEmailParams {
-  to: string;
-  starter_template: string;
-  variables?: Record<string, unknown>;
+  to: string | string[];
+  cc?: string[];
+  bcc?: string[];
+  reply_to?: string;
   from_name?: string;
+  from_address?: string;
+  brand_name?: string;
+  logo_url?: string;
+  starter_template?: string;
+  template_id?: string;
+  subject?: string;
+  html?: string;
+  text?: string;
+  variables?: Record<string, unknown>;
+  attachments?: AttachmentItem[];
+  scheduled_at?: string;
+  idempotency_key?: string;
 }
 
 export interface SendEmailResponse {
   messageId: string;
   status: string;
   from: string;
+}
+
+// BatchMessage is SendEmailParams without the top-level idempotency_key
+// (which is a single-request header concept; per-message keys go in the body
+// as idempotency_key and are serialised as idempotencyKey by the client).
+export type BatchMessage = SendEmailParams;
+
+export interface SendBatchResponse {
+  queued: number;
+  failed: number;
+  total: number;
+  results: Array<{
+    messageId?: string;
+    status: string;
+    to: string;
+    error?: string;
+  }>;
 }
 
 export interface StarterTemplateSummary {
@@ -48,23 +83,41 @@ export interface PreviewStarterTemplateResponse {
   sampleVariables: Record<string, unknown>;
 }
 
+export interface KeysMeLimits {
+  daily: number;
+  monthly: number;
+  ratePerMinute: number;
+}
+
+export interface GetApiKeyInfoResponse {
+  tier: string;
+  usageToday: number;
+  usageMonth: number;
+  limits: KeysMeLimits;
+  allowedModes: string[];
+}
+
+export interface SendCampaignTestResponse {
+  success: boolean;
+  message: string;
+  emailsSent: number;
+  failedEmails: string[];
+}
+
 export interface BrixusClientOptions {
   apiKey: string;
   baseUrl?: string;
-  version?: string; // injected by index.ts from package.json at startup
-  fetchFn?: typeof fetch; // test seam
+  version?: string;
+  fetchFn?: typeof fetch;
   /**
-   * Per-request timeout in milliseconds. If the Brixus API does not respond
-   * within this window the request is aborted and a timeout error is raised.
-   * Defaults to 30_000 (30 seconds).
+   * Per-request timeout in milliseconds. Defaults to 30_000 (30 s).
    */
   timeoutMs?: number;
 }
 
 /**
  * Thrown when an HTTP request to the Brixus API exceeds the configured
- * timeout. The tool-error mapper renders this as a user-friendly hint so
- * the LLM can decide whether to retry or give up.
+ * timeout. Rendered as a user-friendly hint by the tool error mapper.
  */
 export class BrixusTimeoutError extends Error {
   public readonly timeoutMs: number;
@@ -99,23 +152,12 @@ export class BrixusClient {
     this.timeoutMs = options.timeoutMs ?? 30_000;
   }
 
-  /** POST /v1/emails */
-  async sendEmail(params: SendEmailParams): Promise<SendEmailResponse> {
-    return this.request<SendEmailResponse>("/emails", {
-      method: "POST",
-      body: JSON.stringify({
-        to: params.to,
-        starterTemplate: params.starter_template,
-        ...(params.variables ? { variables: params.variables } : {}),
-        ...(params.from_name ? { fromName: params.from_name } : {}),
-      }),
-    });
-  }
+  // ------------------------------------------------------------------
+  // Starter templates (existing)
+  // ------------------------------------------------------------------
 
   /** GET /v1/starter-templates */
   async listStarterTemplates(): Promise<ListStarterTemplatesResponse> {
-    // Endpoint returns a top-level array; wrap so the caller always
-    // receives an object (future-proofs for pagination envelope).
     const templates = await this.request<StarterTemplateSummary[]>(
       "/starter-templates",
       { method: "GET" },
@@ -123,14 +165,7 @@ export class BrixusClient {
     return { templates };
   }
 
-  /** POST /v1/starter-templates/{slug}/preview
-   *
-   * Uses POST + JSON body rather than GET + query string because starter
-   * templates commonly take reset links, OTP codes, and email addresses
-   * as variables, and query strings are logged by proxies / CDNs /
-   * browser history. The body is always sent (even when `variables` is
-   * omitted, we POST `{}`) so the server path is uniform.
-   */
+  /** POST /v1/starter-templates/{slug}/preview */
   async previewStarterTemplate(
     slug: string,
     variables?: Record<string, unknown>,
@@ -148,12 +183,200 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
+  // Transactional email
+  // ------------------------------------------------------------------
+
+  /** POST /v1/emails */
+  async sendEmail(params: SendEmailParams): Promise<SendEmailResponse> {
+    const body: Record<string, unknown> = { to: params.to };
+    if (params.cc) body.cc = params.cc;
+    if (params.bcc) body.bcc = params.bcc;
+    if (params.reply_to) body.replyTo = params.reply_to;
+    if (params.from_name) body.fromName = params.from_name;
+    if (params.from_address) body.from = params.from_address;
+    if (params.brand_name) body.brandName = params.brand_name;
+    if (params.logo_url) body.logoUrl = params.logo_url;
+    if (params.starter_template) body.starterTemplate = params.starter_template;
+    if (params.template_id) body.templateId = params.template_id;
+    if (params.subject) body.subject = params.subject;
+    if (params.html) body.html = params.html;
+    if (params.text) body.text = params.text;
+    if (params.variables) body.variables = params.variables;
+    if (params.attachments) body.attachments = params.attachments;
+    if (params.scheduled_at) body.scheduledAt = params.scheduled_at;
+
+    const extraHeaders: Record<string, string> = {};
+    if (params.idempotency_key) extraHeaders["Idempotency-Key"] = params.idempotency_key;
+
+    return this.request<SendEmailResponse>("/emails", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: extraHeaders,
+    });
+  }
+
+  /** POST /v1/emails/batch */
+  async sendEmailBatch(messages: BatchMessage[]): Promise<SendBatchResponse> {
+    const mapped = messages.map((m) => {
+      const msg: Record<string, unknown> = { to: m.to };
+      if (m.cc) msg.cc = m.cc;
+      if (m.bcc) msg.bcc = m.bcc;
+      if (m.reply_to) msg.replyTo = m.reply_to;
+      if (m.from_name) msg.fromName = m.from_name;
+      if (m.from_address) msg.from = m.from_address;
+      if (m.brand_name) msg.brandName = m.brand_name;
+      if (m.logo_url) msg.logoUrl = m.logo_url;
+      if (m.starter_template) msg.starterTemplate = m.starter_template;
+      if (m.template_id) msg.templateId = m.template_id;
+      if (m.subject) msg.subject = m.subject;
+      if (m.html) msg.html = m.html;
+      if (m.text) msg.text = m.text;
+      if (m.variables) msg.variables = m.variables;
+      if (m.attachments) msg.attachments = m.attachments;
+      if (m.scheduled_at) msg.scheduledAt = m.scheduled_at;
+      if (m.idempotency_key) msg.idempotencyKey = m.idempotency_key;
+      return msg;
+    });
+    return this.request<SendBatchResponse>("/emails/batch", {
+      method: "POST",
+      body: JSON.stringify({ messages: mapped }),
+    });
+  }
+
+  /** GET /v1/emails/{message_id} */
+  async getEmail(messageId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/emails/${encodeURIComponent(messageId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /** GET /v1/emails */
+  async listEmails(params: {
+    from?: string;
+    to?: string;
+    status?: string;
+    skip?: number;
+    limit?: number;
+    sort_by?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/emails", {
+      method: "GET",
+      query: {
+        from: params.from,
+        to: params.to,
+        status: params.status,
+        skip: params.skip,
+        limit: params.limit,
+        sort_by: params.sort_by,
+      },
+    });
+  }
+
+  /** GET /v1/emails/analytics */
+  async getEmailAnalytics(params: {
+    from?: string;
+    to?: string;
+    bucket?: "hour" | "day";
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/emails/analytics", {
+      method: "GET",
+      query: { from: params.from, to: params.to, bucket: params.bucket },
+    });
+  }
+
+  /** DELETE /v1/emails/{message_id} — cancel a scheduled send (returns 204) */
+  async cancelEmail(messageId: string): Promise<void> {
+    return this.request<void>(
+      `/emails/${encodeURIComponent(messageId)}`,
+      { method: "DELETE" },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // API key introspection
+  // ------------------------------------------------------------------
+
+  /** GET /v1/settings/api-keys/me */
+  async getApiKeyInfo(): Promise<GetApiKeyInfoResponse> {
+    return this.request<GetApiKeyInfoResponse>("/settings/api-keys/me", {
+      method: "GET",
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Marketing campaigns (read + send-test)
+  // ------------------------------------------------------------------
+
+  /** GET /v1/marketing/campaigns */
+  async listCampaigns(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    channel?: string;
+    search?: string;
+    sort_by?: string;
+    sort_order?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/campaigns", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+        status: params.status,
+        channel: params.channel,
+        search: params.search,
+        sort_by: params.sort_by,
+        sort_order: params.sort_order,
+      },
+    });
+  }
+
+  /** GET /v1/marketing/campaigns/{campaign_id} */
+  async getCampaign(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /** POST /v1/marketing/campaigns/{campaign_id}/send-test */
+  async sendCampaignTest(
+    campaignId: string,
+    testEmails: string[],
+  ): Promise<SendCampaignTestResponse> {
+    return this.request<SendCampaignTestResponse>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}/send-test`,
+      {
+        method: "POST",
+        body: JSON.stringify({ testEmails }),
+      },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Internal
+  // ------------------------------------------------------------------
 
   private async request<T>(
     path: string,
-    init: { method: "GET" | "POST"; body?: string },
+    init: {
+      method: "GET" | "POST" | "DELETE";
+      body?: string;
+      query?: Record<string, string | number | boolean | undefined>;
+      headers?: Record<string, string>;
+    },
   ): Promise<T> {
-    const url = `${this.baseUrl}${path}`;
+    let url = `${this.baseUrl}${path}`;
+    if (init.query) {
+      const params = new URLSearchParams();
+      for (const [k, v] of Object.entries(init.query)) {
+        if (v !== undefined && v !== null) params.set(k, String(v));
+      }
+      const qs = params.toString();
+      if (qs) url = `${url}?${qs}`;
+    }
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     let response: Response;
@@ -165,18 +388,15 @@ export class BrixusClient {
           "Content-Type": "application/json",
           Accept: "application/json",
           "User-Agent": this.userAgent,
+          ...init.headers,
         },
         body: init.body,
         signal: controller.signal,
       });
     } catch (err) {
-      // AbortController.abort() causes fetch to reject with a DOMException
-      // named "AbortError" (native fetch) or an Error with name === "AbortError"
-      // (undici/node-fetch). Normalise either shape into BrixusTimeoutError
-      // so tool handlers can render a deterministic message.
       if (
-        err instanceof Error
-        && (err.name === "AbortError" || controller.signal.aborted)
+        err instanceof Error &&
+        (err.name === "AbortError" || controller.signal.aborted)
       ) {
         throw new BrixusTimeoutError(this.timeoutMs);
       }
@@ -184,6 +404,9 @@ export class BrixusClient {
     } finally {
       clearTimeout(timer);
     }
+
+    // DELETE /emails/{id} and similar return 204 with no body.
+    if (response.status === 204) return undefined as unknown as T;
 
     const raw = await response.text();
     let parsed: unknown = null;
@@ -196,18 +419,12 @@ export class BrixusClient {
     }
 
     if (!response.ok) {
-      if (
-        parsed
-        && typeof parsed === "object"
-        && "error" in parsed
-      ) {
+      if (parsed && typeof parsed === "object" && "error" in parsed) {
         throw new BrixusApiError(
           response.status,
           parsed as BrixusErrorEnvelope,
         );
       }
-      // Non-envelope 4xx/5xx - surface as a synthetic envelope so the
-      // error-mapping path in `errors.ts` still renders something useful.
       throw new BrixusApiError(response.status, {
         error: {
           code: "unknown_error",
