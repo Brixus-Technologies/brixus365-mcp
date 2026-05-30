@@ -1,7 +1,7 @@
 # Brixus MCP Server
 
-[![GitHub release](https://img.shields.io/github/v/release/Brixus-Technologies/brixus365-mcp?label=release&sort=semver)](https://github.com/Brixus-Technologies/brixus365-mcp/releases)
-[![License: MIT](https://img.shields.io/github/license/Brixus-Technologies/brixus365-mcp)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@brixus365/mcp-server.svg)](https://www.npmjs.com/package/@brixus365/mcp-server)
+[![license](https://img.shields.io/npm/l/@brixus365/mcp-server.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blueviolet)](https://modelcontextprotocol.io)
 
@@ -135,7 +135,7 @@ https://app.brixus365.com/settings/api-keys.
 | `message_already_dispatched` | Tried to cancel an email that's no longer scheduled. | Only emails in `scheduled` status can be cancelled. |
 | `attachment_too_large` / `too_many_attachments` / `attachment_type_not_allowed` | Attachment policy violation. | Max 10 files per email; ≤5 MB each; ≤10 MB total. |
 | `campaign_not_found` | Campaign ID doesn't exist or belongs to a different tenant. | Use `brixus_list_campaigns` to find valid IDs. |
-| `scope_required` | Your API key doesn't grant the permission this tool needs. | Add the required scope at https://app.brixus365.com/settings/api-keys. Marketing scopes require Pro/Enterprise. |
+| `scope_required` | Your API key doesn't grant the permission this tool needs. The error message lists the scopes that would grant it. | Add one of the listed scopes at https://app.brixus365.com/settings/api-keys. Marketing scopes require Pro/Enterprise. |
 | `tier_suspended` | The account was auto-suspended for abuse signals. | Email support@brixus365.com. |
 
 ## Development
