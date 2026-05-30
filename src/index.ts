@@ -3,11 +3,8 @@
  * Brixus MCP server entry point.
  *
  * Reads BRIXUS365_API_KEY (required) and BRIXUS365_API_BASE_URL (optional) from
- * process.env, constructs a BrixusClient, registers the three tools,
- * and connects over stdio.
- *
- * Run with:   npx @brixus365/mcp-server
- * Or (dev):   npm run dev
+ * process.env, constructs a BrixusClient, registers all tools, and connects
+ * over stdio.
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -20,6 +17,15 @@ import { BrixusClient } from "./client.js";
 import { registerSendEmailTool } from "./tools/send_email.js";
 import { registerListStarterTemplatesTool } from "./tools/list_starter_templates.js";
 import { registerPreviewStarterTemplateTool } from "./tools/preview_starter_template.js";
+import { registerGetEmailTool } from "./tools/get_email.js";
+import { registerListEmailsTool } from "./tools/list_emails.js";
+import { registerEmailAnalyticsTool } from "./tools/email_analytics.js";
+import { registerCancelEmailTool } from "./tools/cancel_email.js";
+import { registerSendBatchTool } from "./tools/send_batch.js";
+import { registerGetApiKeyInfoTool } from "./tools/get_api_key_info.js";
+import { registerListCampaignsTool } from "./tools/list_campaigns.js";
+import { registerGetCampaignTool } from "./tools/get_campaign.js";
+import { registerSendCampaignTestTool } from "./tools/send_campaign_test.js";
 
 function readVersion(): string {
   try {
@@ -35,8 +41,6 @@ function readVersion(): string {
 async function main(): Promise<void> {
   const apiKey = process.env.BRIXUS365_API_KEY;
   if (!apiKey || apiKey.trim() === "") {
-    // stderr only - never leak config diagnostics to stdout (which is
-    // the MCP transport channel).
     console.error(
       "ERROR: BRIXUS365_API_KEY environment variable is required.\n" +
       "Set it in your MCP client config (e.g. claude_desktop_config.json).\n" +
@@ -57,15 +61,29 @@ async function main(): Promise<void> {
     version,
   });
 
-  registerSendEmailTool(server, client);
+  // Starter templates
   registerListStarterTemplatesTool(server, client);
   registerPreviewStarterTemplateTool(server, client);
+
+  // Transactional email
+  registerSendEmailTool(server, client);
+  registerGetEmailTool(server, client);
+  registerListEmailsTool(server, client);
+  registerEmailAnalyticsTool(server, client);
+  registerCancelEmailTool(server, client);
+  registerSendBatchTool(server, client);
+
+  // API key introspection
+  registerGetApiKeyInfoTool(server, client);
+
+  // Marketing campaigns (requires campaigns:read / campaigns:send_test scope)
+  registerListCampaignsTool(server, client);
+  registerGetCampaignTool(server, client);
+  registerSendCampaignTestTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
 
-  // Diagnostic ping on stderr only. stdout is reserved for the MCP
-  // framing protocol; writing anything else corrupts the session.
   console.error(`brixus365-mcp-server ${version} ready on stdio`);
 }
 

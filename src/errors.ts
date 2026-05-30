@@ -1,8 +1,7 @@
 /**
  * Error handling for the Brixus MCP server.
  *
- * The Brixus API emits a unified envelope (see
- * `backend/app/core/developer_api_errors.py`):
+ * The Brixus API emits a unified envelope:
  *
  *   { "error": { "code": "<machine_code>",
  *                "message": "<human>",
@@ -43,7 +42,6 @@ export class BrixusApiError extends Error {
     this.status = status;
     this.code = envelope.error.code;
     this.type = envelope.error.type;
-    // Preserve everything except the three well-known fields.
     const { code: _c, message: _m, type: _t, ...rest } = envelope.error;
     this.extras = rest;
   }
@@ -51,23 +49,8 @@ export class BrixusApiError extends Error {
 
 /**
  * Map a caught error to the text body of an MCP tool error response.
- *
- * Returns a string that includes:
- *   - The Brixus error code (so the LLM can match on it deterministically).
- *   - A human-readable message tuned for the specific code.
- *   - A pointer to the fix where one exists (dashboard URL, upgrade URL,
- *     retry timing, etc.).
- *
- * Fallbacks:
- *   - Timeout (BrixusTimeoutError): "Error (timeout): ...".
- *   - Non-BrixusApiError (network, parse): "Error (network): <message>".
- *   - Unknown Brixus code: echo code + message verbatim.
  */
 export function mapToolErrorMessage(error: unknown): string {
-  // Timeout: surface a dedicated, actionable message so the LLM does not
-  // treat it as a generic network blip and immediately retry forever.
-  // Matched by name rather than `instanceof` to avoid a circular import
-  // between errors.ts and client.ts.
   if (error instanceof Error && error.name === "BrixusTimeoutError") {
     return (
       `Error (timeout): ${error.message}\n\n` +
@@ -129,6 +112,55 @@ export function mapToolErrorMessage(error: unknown): string {
           "Fix: use `brixus_list_starter_templates` to see valid slugs."
         );
 
+      case "message_not_found":
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: check the message ID. Use `brixus_list_emails` to find valid IDs."
+        );
+
+      case "message_already_dispatched":
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: only emails in 'scheduled' status can be cancelled."
+        );
+
+      case "attachment_type_not_allowed":
+      case "attachment_too_large":
+      case "too_many_attachments":
+        return `Error (${error.code}): ${error.message}`;
+
+      case "campaign_not_found":
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: use `brixus_list_campaigns` to find valid campaign IDs."
+        );
+
+      case "scope_required":
+        // The backend message already names the missing scope/permission
+        // and (for the resolved-permission path) lists the granting
+        // scopes. We trust it verbatim and only append a URL hint, so
+        // this handler stays generic across all scope-gated endpoints
+        // (campaigns, domains, webhooks, etc).
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: create or update an API key with one of the listed scopes " +
+          "at https://app.brixus365.com/settings/api-keys. " +
+          "Some scopes (e.g. marketing:read, marketing:write, webhooks:*) " +
+          "require a Pro or Enterprise account."
+        );
+
+      case "api_key_required":
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: this endpoint requires API key auth, not a JWT session."
+        );
+
+      case "jwt_required":
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: this endpoint requires JWT (dashboard) auth, not an API key."
+        );
+
       case "invalid_recipient":
       case "missing_field":
       case "multiple_modes":
@@ -140,7 +172,6 @@ export function mapToolErrorMessage(error: unknown): string {
     }
   }
 
-  // Non-API error (network, DNS, parse).
   if (error instanceof Error) {
     return `Error (network): ${error.message}`;
   }

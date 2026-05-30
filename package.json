@@ -1,7 +1,7 @@
 {
   "name": "@brixus365/mcp-server",
-  "version": "0.1.0",
-  "description": "Model Context Protocol server for the Brixus Email API. Lets LLM agents send transactional email through Brixus using starter templates.",
+  "version": "0.2.0",
+  "description": "Model Context Protocol server for the Brixus Email API. Lets LLM agents send transactional email, inspect delivery status, view analytics, and test marketing campaigns through Brixus.",
   "license": "MIT",
   "author": "Brixus Technologies Private Limited <hello@brixus365.com>",
   "homepage": "https://brixus365.com/developers",

@@ -14,61 +14,64 @@ export function registerSendEmailTool(
   server.registerTool(
     "brixus_send_email",
     {
-      title: "Send a Brixus transactional email",
-      description: `Send a transactional email through Brixus using a starter template.
+      title: "Send a transactional email",
+      description: `Send a transactional email through Brixus.
 
-The email is rendered from the chosen starter template and the variables
-you supply. Delivery is asynchronous: this tool returns immediately with
-a \`messageId\` and a \`status\` of "queued". Use the Brixus dashboard
-to inspect delivery outcomes.
+Choose exactly one content mode:
+  - \`starter_template\` + optional \`variables\`: use a built-in Brixus template
+    (call \`brixus_list_starter_templates\` to browse slugs).
+  - \`template_id\`: UUID of a custom saved template.
+  - \`html\` + required \`subject\`: raw HTML body.
 
-Typical flow for an agent:
-  1. Call \`brixus_list_starter_templates\` to find a slug whose \`variables\`
-     list matches the data you have.
-  2. (Optional) Call \`brixus_preview_starter_template\` with the slug and
-     your variables to confirm the rendered subject/body look right.
-  3. Call this tool with \`to\`, \`starter_template\`, and \`variables\`.
+Recipients: \`to\` accepts a single email or an array of up to 50 addresses.
+Add \`cc\`, \`bcc\`, or \`reply_to\` as needed.
 
-Args:
-  - to (string, required): recipient email address. One recipient per call.
-  - starter_template (string, required): kebab-case slug returned by
-    \`brixus_list_starter_templates\`.
-  - variables (object, optional): key-value pairs to inject. Each
-    template documents its required variables.
-  - from_name (string, optional): display name, <=1024 chars. Defaults
-    to the tenant's configured sender name.
+Scheduling: supply \`scheduled_at\` (ISO 8601, ≤30 days out) to defer delivery.
+Deduplication: supply \`idempotency_key\` to safely retry without double-sending.
 
-Returns (JSON):
-  {
-    "messageId": "msg_preview_01J...",   // Brixus message identifier
-    "status": "queued",                   // always "queued" on success
-    "from": "Alice <noreply@preview.brixus365.com>"
-  }
-
-Errors (well-known codes, re-surfaced verbatim):
-  - invalid_api_key, missing_api_key: env var not set or wrong.
-  - key_revoked_upgrade: preview key revoked post-upgrade; copy the new
-    bx_live_ key from the dashboard URL in the error message.
-  - upgrade_required: preview limit hit; visit upgrade_url.
-  - rate_limit_exceeded, daily_limit_exceeded, monthly_limit_exceeded:
-    back off and retry after \`retry_after_seconds\`.
-  - template_not_found: call brixus_list_starter_templates first.
-  - invalid_recipient, missing_field, multiple_modes: input is malformed.`,
+Returns \`messageId\` (use with \`brixus_get_email\` to check delivery status).`,
       inputSchema: SendEmailInputSchema,
       annotations: {
         readOnlyHint: false,
-        destructiveHint: true,   // sending an email is externally visible
-        idempotentHint: false,   // without an idempotency key, two calls = two emails
+        destructiveHint: true,
+        idempotentHint: false,
         openWorldHint: true,
       },
     },
     async (params: SendEmailInput) => {
+      const modes = [params.starter_template, params.template_id, params.html].filter(
+        Boolean,
+      );
+      if (modes.length !== 1) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Error (invalid_input): Exactly one of `starter_template`, `template_id`, or `html` is required.",
+            },
+          ],
+          isError: true,
+        };
+      }
       try {
         const resp = await client.sendEmail({
           to: params.to,
-          starter_template: params.starter_template,
-          variables: params.variables,
-          from_name: params.from_name,
+          ...(params.cc && { cc: params.cc }),
+          ...(params.bcc && { bcc: params.bcc }),
+          ...(params.reply_to && { reply_to: params.reply_to }),
+          ...(params.from_name && { from_name: params.from_name }),
+          ...(params.from_address && { from_address: params.from_address }),
+          ...(params.brand_name && { brand_name: params.brand_name }),
+          ...(params.logo_url && { logo_url: params.logo_url }),
+          ...(params.starter_template && { starter_template: params.starter_template }),
+          ...(params.template_id && { template_id: params.template_id }),
+          ...(params.subject && { subject: params.subject }),
+          ...(params.html && { html: params.html }),
+          ...(params.text && { text: params.text }),
+          ...(params.variables && { variables: params.variables }),
+          ...(params.attachments && { attachments: params.attachments }),
+          ...(params.scheduled_at && { scheduled_at: params.scheduled_at }),
+          ...(params.idempotency_key && { idempotency_key: params.idempotency_key }),
         });
         const output = {
           messageId: resp.messageId,
