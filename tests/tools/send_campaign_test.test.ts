@@ -40,14 +40,23 @@ describe("brixus_send_campaign_test handler", () => {
     expect(parsed.emailsSent).toBe(2);
   });
 
-  it("scope_required for marketing:campaigns:send surfaces correctly", async () => {
+  it("scope_required for marketing:campaigns:send surfaces backend message + URL hint", async () => {
     const mock = makeMockServer();
+    // Mirrors the actual envelope from
+    // AuthenticatedContext.require_resolved_scope_or_permission. Only
+    // marketing:write grants marketing:campaigns:send (write implies read),
+    // so the reverse-lookup returns a single-element granting_scopes list.
     const err = new BrixusApiError(403, {
       error: {
         code: "scope_required",
-        message: "Missing permission.",
+        message:
+          "API key does not grant required permission 'marketing:campaigns:send'. " +
+          "Available scopes that grant this permission: marketing:write.",
         type: "auth",
-        details: { required_scope: "marketing:campaigns:send" },
+        details: {
+          required_permission: "marketing:campaigns:send",
+          granting_scopes: ["marketing:write"],
+        },
       },
     });
     const sendCampaignTest = vi.fn(async () => { throw err; });

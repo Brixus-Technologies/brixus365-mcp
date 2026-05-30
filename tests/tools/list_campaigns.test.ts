@@ -38,14 +38,21 @@ describe("brixus_list_campaigns handler", () => {
     expect(parsed.total).toBe(1);
   });
 
-  it("scope_required error surfaces with fix hint", async () => {
+  it("scope_required surfaces backend message verbatim with URL hint", async () => {
     const mock = makeMockServer();
+    // Mirrors the actual envelope produced by
+    // AuthenticatedContext.require_resolved_scope_or_permission on the backend.
     const err = new BrixusApiError(403, {
       error: {
         code: "scope_required",
-        message: "Missing permission.",
+        message:
+          "API key does not grant required permission 'marketing:campaigns:read'. " +
+          "Available scopes that grant this permission: marketing:read, marketing:write.",
         type: "auth",
-        details: { required_scope: "marketing:campaigns:read" },
+        details: {
+          required_permission: "marketing:campaigns:read",
+          granting_scopes: ["marketing:read", "marketing:write"],
+        },
       },
     });
     const listCampaigns = vi.fn(async () => { throw err; });
@@ -58,6 +65,7 @@ describe("brixus_list_campaigns handler", () => {
     expect(result.content[0]!.text).toContain("scope_required");
     expect(result.content[0]!.text).toContain("marketing:campaigns:read");
     expect(result.content[0]!.text).toContain("marketing:read");
+    expect(result.content[0]!.text).toContain("marketing:write");
     expect(result.content[0]!.text).toContain("api-keys");
   });
 

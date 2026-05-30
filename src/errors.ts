@@ -135,19 +135,19 @@ export function mapToolErrorMessage(error: unknown): string {
           "Fix: use `brixus_list_campaigns` to find valid campaign IDs."
         );
 
-      case "scope_required": {
-        const details = error.extras.details as { required_scope?: string } | undefined;
-        const required = details?.required_scope;
+      case "scope_required":
+        // The backend message already names the missing scope/permission
+        // and (for the resolved-permission path) lists the granting
+        // scopes. We trust it verbatim and only append a URL hint, so
+        // this handler stays generic across all scope-gated endpoints
+        // (campaigns, domains, webhooks, etc).
         return (
-          `Error (${error.code}): ${error.message}` +
-          (required ? ` Required permission: ${required}.` : "") +
-          "\n\nFix: create an API key with the appropriate scope at " +
-          "https://app.brixus365.com/settings/api-keys. " +
-          "For campaign read access use `marketing:read`; for campaign " +
-          "test-send use `marketing:write`. Marketing scopes require a " +
-          "Pro or Enterprise account."
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: create or update an API key with one of the listed scopes " +
+          "at https://app.brixus365.com/settings/api-keys. " +
+          "Some scopes (e.g. marketing:read, marketing:write, webhooks:*) " +
+          "require a Pro or Enterprise account."
         );
-      }
 
       case "api_key_required":
         return (
