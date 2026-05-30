@@ -140,16 +140,26 @@ export function mapToolErrorMessage(error: unknown): string {
         const required = details?.required_scope;
         return (
           `Error (${error.code}): ${error.message}` +
-          (required ? ` Required scope: ${required}.` : "") +
-          "\n\nFix: create an API key with the required scope at " +
+          (required ? ` Required permission: ${required}.` : "") +
+          "\n\nFix: create an API key with the appropriate scope at " +
           "https://app.brixus365.com/settings/api-keys. " +
-          "campaigns:read and campaigns:send_test require a Pro or Enterprise account."
+          "For campaign read access use `marketing:read`; for campaign " +
+          "test-send use `marketing:write`. Marketing scopes require a " +
+          "Pro or Enterprise account."
         );
       }
 
       case "api_key_required":
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: this endpoint requires API key auth, not a JWT session."
+        );
+
       case "jwt_required":
-        return `Error (${error.code}): ${error.message}`;
+        return (
+          `Error (${error.code}): ${error.message}\n\n` +
+          "Fix: this endpoint requires JWT (dashboard) auth, not an API key."
+        );
 
       case "invalid_recipient":
       case "missing_field":

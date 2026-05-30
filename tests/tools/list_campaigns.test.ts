@@ -43,9 +43,9 @@ describe("brixus_list_campaigns handler", () => {
     const err = new BrixusApiError(403, {
       error: {
         code: "scope_required",
-        message: "Missing scope.",
+        message: "Missing permission.",
         type: "auth",
-        details: { required_scope: "campaigns:read" },
+        details: { required_scope: "marketing:campaigns:read" },
       },
     });
     const listCampaigns = vi.fn(async () => { throw err; });
@@ -56,7 +56,8 @@ describe("brixus_list_campaigns handler", () => {
     const result = await mock.lastHandler()({});
     expect(result.isError).toBe(true);
     expect(result.content[0]!.text).toContain("scope_required");
-    expect(result.content[0]!.text).toContain("campaigns:read");
+    expect(result.content[0]!.text).toContain("marketing:campaigns:read");
+    expect(result.content[0]!.text).toContain("marketing:read");
     expect(result.content[0]!.text).toContain("api-keys");
   });
 

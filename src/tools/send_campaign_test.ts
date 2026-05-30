@@ -17,7 +17,7 @@ Renders the campaign template with smart variable defaults and delivers
 to the specified test addresses. Does NOT create Message records or
 affect campaign statistics — safe to call at any campaign lifecycle stage.
 
-Requires \`campaigns:send_test\` API key scope (Pro/Enterprise tier only).
+Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).
 Use \`brixus_list_campaigns\` to find campaign IDs.`,
       inputSchema: SendCampaignTestInputSchema,
       annotations: {

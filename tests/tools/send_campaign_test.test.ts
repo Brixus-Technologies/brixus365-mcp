@@ -40,14 +40,14 @@ describe("brixus_send_campaign_test handler", () => {
     expect(parsed.emailsSent).toBe(2);
   });
 
-  it("scope_required for campaigns:send_test surfaces correctly", async () => {
+  it("scope_required for marketing:campaigns:send surfaces correctly", async () => {
     const mock = makeMockServer();
     const err = new BrixusApiError(403, {
       error: {
         code: "scope_required",
-        message: "Missing scope.",
+        message: "Missing permission.",
         type: "auth",
-        details: { required_scope: "campaigns:send_test" },
+        details: { required_scope: "marketing:campaigns:send" },
       },
     });
     const sendCampaignTest = vi.fn(async () => { throw err; });
@@ -60,7 +60,8 @@ describe("brixus_send_campaign_test handler", () => {
       test_emails: ["a@test.com"],
     });
     expect(result.isError).toBe(true);
-    expect(result.content[0]!.text).toContain("campaigns:send_test");
+    expect(result.content[0]!.text).toContain("marketing:campaigns:send");
+    expect(result.content[0]!.text).toContain("marketing:write");
   });
 
   it("campaign_not_found returns actionable error", async () => {

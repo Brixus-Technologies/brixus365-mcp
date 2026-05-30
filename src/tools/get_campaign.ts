@@ -13,7 +13,7 @@ export function registerGetCampaignTool(server: McpServer, client: BrixusClient)
 Returns campaign status, channel, subject, recipient count, sent count,
 scheduled time, and other metadata.
 
-Requires \`campaigns:read\` API key scope (Pro/Enterprise tier only).
+Requires \`marketing:read\` or \`marketing:write\` API key scope (Pro/Enterprise tier only).
 Use \`brixus_list_campaigns\` to discover campaign IDs.`,
       inputSchema: GetCampaignInputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },

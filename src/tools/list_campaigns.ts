@@ -15,7 +15,7 @@ Returns a paginated list of campaigns with status, channel, recipient count,
 and sent count. Use this to discover campaign IDs for \`brixus_send_campaign_test\`
 or \`brixus_get_campaign\`.
 
-Requires \`campaigns:read\` API key scope (Pro/Enterprise tier only).
+Requires \`marketing:read\` or \`marketing:write\` API key scope (Pro/Enterprise tier only).
 
 Filter options: status, channel, name search.
 Sort by created_at, scheduled_at, name, or status.`,
