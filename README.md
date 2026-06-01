@@ -61,9 +61,16 @@ https://app.brixus365.com/settings/api-keys.
    https://brixus365.com/developers and copy the `bx_preview_...` (or
    `bx_live_...` after upgrading) key.
 
-2. **Add this server to Claude Desktop.** Open
-   `~/Library/Application Support/Claude/claude_desktop_config.json`
-   (macOS) or the equivalent on your OS, then add:
+2. **Wire it into your MCP client.** The JSON shape below is identical
+   across all clients — only the config file location differs.
+
+   <details open>
+   <summary><b>Claude Desktop</b> (most common)</summary>
+
+   Edit `~/Library/Application Support/Claude/claude_desktop_config.json`
+   on macOS (`%APPDATA%\Claude\claude_desktop_config.json` on Windows,
+   `~/.config/Claude/claude_desktop_config.json` on Linux). Create the
+   file if it doesn't exist:
 
    ```json
    {
@@ -79,11 +86,96 @@ https://app.brixus365.com/settings/api-keys.
    }
    ```
 
-3. **Restart Claude Desktop.** Try a prompt like:
+   Fully quit Claude Desktop (`Cmd+Q` on macOS, right-click → Quit on
+   Windows) and reopen. MCP servers only load at startup — closing the
+   window doesn't kill the process.
+   </details>
+
+   <details>
+   <summary><b>Cursor</b></summary>
+
+   Edit `.cursor/mcp.json` in your project root, or `~/.cursor/mcp.json`
+   for global config. Same JSON shape as Claude Desktop:
+
+   ```json
+   {
+     "mcpServers": {
+       "brixus": {
+         "command": "npx",
+         "args": ["-y", "@brixus365/mcp-server"],
+         "env": {
+           "BRIXUS365_API_KEY": "bx_preview_REPLACE_ME"
+         }
+       }
+     }
+   }
+   ```
+
+   Fully quit Cursor (`Cmd+Q`) and reopen, or use the *"Reload MCP
+   servers"* command from the command palette.
+   </details>
+
+   <details>
+   <summary><b>Claude Code</b> (CLI)</summary>
+
+   One command — Claude Code edits `~/.claude.json` for you:
+
+   ```bash
+   claude mcp add brixus -- env BRIXUS365_API_KEY=bx_preview_REPLACE_ME npx -y @brixus365/mcp-server
+   ```
+
+   Verify the server registered:
+
+   ```bash
+   claude mcp list
+   ```
+   </details>
+
+   <details>
+   <summary><b>Cline</b> (VS Code extension)</summary>
+
+   Open the command palette → *"Cline: Open MCP Configuration"* and add:
+
+   ```json
+   {
+     "mcpServers": {
+       "brixus": {
+         "command": "npx",
+         "args": ["-y", "@brixus365/mcp-server"],
+         "env": {
+           "BRIXUS365_API_KEY": "bx_preview_REPLACE_ME"
+         }
+       }
+     }
+   }
+   ```
+
+   Click *"Reload"* in the MCP panel after saving.
+   </details>
+
+   <details>
+   <summary><b>Any other MCP-aware client</b></summary>
+
+   The Brixus MCP server is a pure standard MCP server over stdio. Any
+   client that supports the `mcpServers` JSON schema (Continue, Zed,
+   Goose, custom clients, etc.) will work — the JSON above is portable.
+   The server speaks [MCP spec
+   2024-11-05](https://modelcontextprotocol.io/specification/).
+   </details>
+
+3. **Restart the client and try a prompt:**
 
    > Using Brixus, send a password-reset email to `alice@example.com`.
    > The user's first name is Alice and the reset link is
    > `https://example.com/reset/abc123`.
+
+   You can also verify the tools loaded by asking:
+
+   > What Brixus tools do you have access to?
+
+   The agent should enumerate 12 tools (`brixus_send_email`,
+   `brixus_list_starter_templates`, etc.). If it doesn't see any, the
+   config didn't load — fully quit + restart the client.
 
 ## Example prompts
 
