@@ -121,8 +121,7 @@ https://app.brixus365.com/settings/api-keys.
    One command — Claude Code edits `~/.claude.json` for you:
 
    ```bash
-   claude mcp add brixus -- env BRIXUS365_API_KEY=bx_preview_REPLACE_ME \
-     npx -y @brixus365/mcp-server
+   claude mcp add brixus -- env BRIXUS365_API_KEY=bx_preview_REPLACE_ME npx -y @brixus365/mcp-server
    ```
 
    Verify the server registered:
@@ -145,8 +144,7 @@ https://app.brixus365.com/settings/api-keys.
          "args": ["-y", "@brixus365/mcp-server"],
          "env": {
            "BRIXUS365_API_KEY": "bx_preview_REPLACE_ME"
-         },
-         "disabled": false
+         }
        }
      }
    }
