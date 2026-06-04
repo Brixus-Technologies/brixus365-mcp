@@ -26,7 +26,9 @@ The \`puck_data\` object must contain:
 
 Use \`{{variable_name}}\` syntax in HTML content and subject for personalization.
 
-Returns the created template ID and an editor URL for visual refinement.`,
+Returns the created template ID and an editor URL for visual refinement.
+
+Requires \`templates:write\` API key scope.`,
       inputSchema: CreateEmailTemplateInputSchema,
       annotations: {
         readOnlyHint: false,
@@ -45,7 +47,7 @@ Returns the created template ID and an editor URL for visual refinement.`,
         });
 
         const id = resp.id as string;
-        const editorUrl = `${client.getDashboardBaseUrl()}/marketing/templates/${id}/edit`;
+        const editorUrl = `${client.getDashboardBaseUrl()}/apps/marketing/templates/${id}/edit`;
 
         const output = {
           id,

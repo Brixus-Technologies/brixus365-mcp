@@ -44,6 +44,7 @@ describe("brixus_update_email_template handler", () => {
     expect(result.isError).toBeFalsy();
     expect(result.structuredContent?.id).toBe(TEMPLATE_UUID);
     expect(result.structuredContent?.editorUrl).toContain(TEMPLATE_UUID);
+    expect(result.structuredContent?.editorUrl).toContain("/apps/marketing/templates/");
     expect(updateTemplate).toHaveBeenCalledWith(TEMPLATE_UUID, {
       subject: "New subject",
       puck_data: undefined,

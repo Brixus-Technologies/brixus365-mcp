@@ -244,8 +244,8 @@ const COMPONENT_SCHEMAS: Record<string, object> = {
     },
   },
   EmailTable: {
-    description: "Data table. Cell content goes in zones named {id}:column-{index}.",
-    zones: ["{id}:column-{index}"],
+    description: "Data table. Cell content goes in zones named {id}:row-0-col-0, {id}:row-0-col-1, etc.",
+    zones: ["{id}:row-{rowIdx}-col-{colIdx}"],
     props: {
       content: {
         numRows: { type: "number", min: 1, max: 10 },
@@ -282,7 +282,7 @@ const PUCK_DATA_STRUCTURE = {
     EmailContainer: "{id}:content",
     EmailSection: "{id}:section-content",
     EmailColumns: "{id}:column-0, {id}:column-1, etc.",
-    EmailTable: "{id}:column-{index}",
+    EmailTable: "{id}:row-{rowIdx}-col-{colIdx}",
   },
   idRules: "All IDs must be unique. Use descriptive kebab-case: 'hero-section', 'main-heading', 'cta-button'.",
   variableSyntax: "Use {{variable_name}} in HTML content and subject lines for personalization.",

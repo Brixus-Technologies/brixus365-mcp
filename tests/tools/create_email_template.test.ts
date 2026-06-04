@@ -51,7 +51,7 @@ describe("brixus_create_email_template handler", () => {
     expect(result.isError).toBeFalsy();
     expect(result.structuredContent?.id).toBe(TEMPLATE_UUID);
     expect(result.structuredContent?.editorUrl).toContain(TEMPLATE_UUID);
-    expect(result.structuredContent?.editorUrl).toContain("/marketing/templates/");
+    expect(result.structuredContent?.editorUrl).toContain("/apps/marketing/templates/");
     expect(createTemplate).toHaveBeenCalledWith({
       name: "Welcome Email",
       subject: "Hello {{first_name}}",

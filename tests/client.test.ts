@@ -342,6 +342,65 @@ describe("BrixusClient request timeout", () => {
   });
 });
 
+describe("BrixusClient.getDashboardBaseUrl", () => {
+  it("strips /api/v1 from baseUrl", () => {
+    const client = new BrixusClient({
+      apiKey: "bx_test",
+      baseUrl: "https://app.example.com/api/v1",
+      fetchFn: vi.fn() as unknown as typeof fetch,
+    });
+    expect(client.getDashboardBaseUrl()).toBe("https://app.example.com");
+  });
+
+  it("handles trailing slash (already stripped by constructor)", () => {
+    const client = new BrixusClient({
+      apiKey: "bx_test",
+      baseUrl: "https://app.example.com/api/v1/",
+      fetchFn: vi.fn() as unknown as typeof fetch,
+    });
+    expect(client.getDashboardBaseUrl()).toBe("https://app.example.com");
+  });
+});
+
+describe("BrixusClient.createTemplate", () => {
+  it("sends correct body shape with channel and puck_data", async () => {
+    const puckData = {
+      root: { props: { title: "Test" } },
+      content: [{ type: "EmailContainer", props: { id: "c1" } }],
+      zones: {},
+    };
+
+    const fetchFn = vi.fn(async () =>
+      okResponse({
+        id: "tpl_123",
+        name: "My Template",
+        subject: "Hello",
+        variables: [],
+        created_at: "2026-01-01T00:00:00Z",
+      }),
+    ) as unknown as typeof fetch;
+
+    const client = makeClient(fetchFn);
+    await client.createTemplate({
+      name: "My Template",
+      subject: "Hello",
+      puck_data: puckData,
+    });
+
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+    const call = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+    const [url, init] = call as [string, RequestInit];
+    expect(url).toBe("https://api.example.test/api/v1/templates/puck");
+    expect(init.method).toBe("POST");
+    const body = JSON.parse(init.body as string);
+    expect(body.channel).toBe("email");
+    expect(body.body).toBe("");
+    expect(body.puck_data).toEqual(puckData);
+    expect(body.name).toBe("My Template");
+    expect(body.subject).toBe("Hello");
+  });
+});
+
 describe("BrixusClient headers", () => {
   it("sets User-Agent header to brixus365-mcp-server/<version>", async () => {
     const fetchFn = vi.fn(async () =>

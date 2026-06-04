@@ -20,7 +20,9 @@ Supply \`puck_data\` to replace the template design, \`subject\` to update the
 subject line, or \`name\` to rename. At least one field besides \`template_id\`
 must be provided.
 
-Call \`brixus_get_email_component_schema\` for the Puck JSON structure reference.`,
+Call \`brixus_get_email_component_schema\` for the Puck JSON structure reference.
+
+Requires \`templates:write\` API key scope.`,
       inputSchema: UpdateEmailTemplateInputSchema,
       annotations: {
         readOnlyHint: false,
@@ -38,7 +40,7 @@ Call \`brixus_get_email_component_schema\` for the Puck JSON structure reference
         });
 
         const id = resp.id as string;
-        const editorUrl = `${client.getDashboardBaseUrl()}/marketing/templates/${id}/edit`;
+        const editorUrl = `${client.getDashboardBaseUrl()}/apps/marketing/templates/${id}/edit`;
 
         const output = {
           id,

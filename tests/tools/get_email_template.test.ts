@@ -49,6 +49,7 @@ describe("brixus_get_email_template handler", () => {
     expect(result.structuredContent?.id).toBe(TEMPLATE_UUID);
     expect(result.structuredContent?.puckData).toEqual(SAMPLE_PUCK_DATA);
     expect(result.structuredContent?.editorUrl).toContain(TEMPLATE_UUID);
+    expect(result.structuredContent?.editorUrl).toContain("/apps/marketing/templates/");
     expect(getTemplate).toHaveBeenCalledWith(TEMPLATE_UUID);
   });
 

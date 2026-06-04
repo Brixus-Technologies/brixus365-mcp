@@ -19,6 +19,9 @@ export const UpdateEmailTemplateInputSchema = z.object({
     .string()
     .optional()
     .describe("Updated template name."),
-}).strict();
+}).strict().refine(
+  (v) => v.puck_data !== undefined || v.subject !== undefined || v.name !== undefined,
+  { message: "At least one of puck_data, subject, or name must be provided." },
+);
 
 export type UpdateEmailTemplateInput = z.infer<typeof UpdateEmailTemplateInputSchema>;

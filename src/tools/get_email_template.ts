@@ -18,7 +18,9 @@ export function registerGetEmailTemplateTool(
 
 Returns the template name, subject, category, detected variables, full
 \`puckData\` for inspection or modification, and an editor URL for the
-Brixus dashboard.`,
+Brixus dashboard.
+
+Requires \`templates:read\` API key scope.`,
       inputSchema: GetEmailTemplateInputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
@@ -27,7 +29,7 @@ Brixus dashboard.`,
         const resp = await client.getTemplate(params.template_id);
 
         const id = resp.id as string;
-        const editorUrl = `${client.getDashboardBaseUrl()}/marketing/templates/${id}/edit`;
+        const editorUrl = `${client.getDashboardBaseUrl()}/apps/marketing/templates/${id}/edit`;
 
         const output = {
           id,
