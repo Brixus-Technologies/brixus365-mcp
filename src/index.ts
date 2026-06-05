@@ -26,6 +26,10 @@ import { registerGetApiKeyInfoTool } from "./tools/get_api_key_info.js";
 import { registerListCampaignsTool } from "./tools/list_campaigns.js";
 import { registerGetCampaignTool } from "./tools/get_campaign.js";
 import { registerSendCampaignTestTool } from "./tools/send_campaign_test.js";
+import { registerGetEmailComponentSchemaTool } from "./tools/get_email_component_schema.js";
+import { registerCreateEmailTemplateTool } from "./tools/create_email_template.js";
+import { registerUpdateEmailTemplateTool } from "./tools/update_email_template.js";
+import { registerGetEmailTemplateTool } from "./tools/get_email_template.js";
 
 function readVersion(): string {
   try {
@@ -80,6 +84,12 @@ async function main(): Promise<void> {
   registerListCampaignsTool(server, client);
   registerGetCampaignTool(server, client);
   registerSendCampaignTestTool(server, client);
+
+  // Email template editor
+  registerGetEmailComponentSchemaTool(server);
+  registerCreateEmailTemplateTool(server, client);
+  registerUpdateEmailTemplateTool(server, client);
+  registerGetEmailTemplateTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

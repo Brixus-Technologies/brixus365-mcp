@@ -109,7 +109,8 @@ export function mapToolErrorMessage(error: unknown): string {
       case "template_not_found":
         return (
           `Error (${error.code}): ${error.message}\n\n` +
-          "Fix: use `brixus_list_starter_templates` to see valid slugs."
+          "Fix: verify the template ID is correct. For starter templates, " +
+          "use `brixus_list_starter_templates` to find valid slugs."
         );
 
       case "message_not_found":

@@ -305,6 +305,66 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
+  // Email templates
+  // ------------------------------------------------------------------
+
+  /** POST /v1/templates/puck */
+  async createTemplate(params: {
+    name: string;
+    subject: string;
+    puck_data: Record<string, unknown>;
+    category?: string;
+  }): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {
+      name: params.name,
+      subject: params.subject,
+      channel: "email",
+      body: "",
+      puck_data: params.puck_data,
+      category: params.category || "marketing",
+    };
+    return this.request<Record<string, unknown>>("/templates/puck", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  /** PUT /v1/templates/{template_id} */
+  async updateTemplate(
+    templateId: string,
+    params: {
+      puck_data?: Record<string, unknown>;
+      subject?: string;
+      name?: string;
+    },
+  ): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {};
+    if (params.puck_data !== undefined) body.puck_data = params.puck_data;
+    if (params.subject !== undefined) body.subject = params.subject;
+    if (params.name !== undefined) body.name = params.name;
+    return this.request<Record<string, unknown>>(
+      `/templates/${encodeURIComponent(templateId)}`,
+      { method: "PUT", body: JSON.stringify(body) },
+    );
+  }
+
+  /** GET /v1/templates/{template_id} */
+  async getTemplate(templateId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/templates/${encodeURIComponent(templateId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /**
+   * Derive the dashboard base URL by stripping `/api/v1` from the API base URL.
+   * Used to construct editor URLs for templates.
+   */
+  getDashboardBaseUrl(): string {
+    return this.baseUrl.replace(/\/api\/v1$/, "");
+  }
+
+  // ------------------------------------------------------------------
   // Marketing campaigns (read + send-test)
   // ------------------------------------------------------------------
 
@@ -361,7 +421,7 @@ export class BrixusClient {
   private async request<T>(
     path: string,
     init: {
-      method: "GET" | "POST" | "DELETE";
+      method: "GET" | "POST" | "PUT" | "DELETE";
       body?: string;
       query?: Record<string, string | number | boolean | undefined>;
       headers?: Record<string, string>;
