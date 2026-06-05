@@ -16,11 +16,11 @@ export function registerUpdateEmailTemplateTool(
       title: "Update an email template",
       description: `Update an existing email template. Only provided fields are changed.
 
-Supply \`puck_data\` to replace the template design, \`subject\` to update the
+Supply \`template_data\` to replace the template design, \`subject\` to update the
 subject line, or \`name\` to rename. At least one field besides \`template_id\`
 must be provided.
 
-Call \`brixus_get_email_component_schema\` for the Puck JSON structure reference.
+Call \`brixus_get_email_component_schema\` for the template structure reference.
 
 Requires \`templates:write\` API key scope.`,
       inputSchema: UpdateEmailTemplateInputSchema,
@@ -34,7 +34,7 @@ Requires \`templates:write\` API key scope.`,
     async (params: UpdateEmailTemplateInput) => {
       try {
         const resp = await client.updateTemplate(params.template_id, {
-          puck_data: params.puck_data,
+          puck_data: params.template_data,
           subject: params.subject,
           name: params.name,
         });

@@ -46,7 +46,7 @@ describe("brixus_create_email_template handler", () => {
     const result = await mock.lastHandler()({
       name: "Welcome Email",
       subject: "Hello {{first_name}}",
-      puck_data: SAMPLE_PUCK_DATA,
+      template_data: SAMPLE_PUCK_DATA,
     });
     expect(result.isError).toBeFalsy();
     expect(result.structuredContent?.id).toBe(TEMPLATE_UUID);
@@ -76,7 +76,7 @@ describe("brixus_create_email_template handler", () => {
     await mock.lastHandler()({
       name: "Receipt",
       subject: "Your receipt",
-      puck_data: SAMPLE_PUCK_DATA,
+      template_data: SAMPLE_PUCK_DATA,
       category: "transactional",
     });
     expect(createTemplate.mock.calls[0]![0].category).toBe("transactional");
@@ -95,7 +95,7 @@ describe("brixus_create_email_template handler", () => {
     const result = await mock.lastHandler()({
       name: "X",
       subject: "Y",
-      puck_data: SAMPLE_PUCK_DATA,
+      template_data: SAMPLE_PUCK_DATA,
     });
     expect(result.isError).toBe(true);
     expect(result.content[0]!.text).toContain("scope_required");

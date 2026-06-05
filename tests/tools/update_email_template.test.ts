@@ -52,7 +52,7 @@ describe("brixus_update_email_template handler", () => {
     });
   });
 
-  it("passes puck_data update through to client", async () => {
+  it("passes template_data through as puck_data to client", async () => {
     const mock = makeMockServer();
     const newPuck = { root: { props: { title: "V2" } }, content: [], zones: {} };
     const updateTemplate = vi.fn(async () => ({
@@ -68,7 +68,7 @@ describe("brixus_update_email_template handler", () => {
     );
     await mock.lastHandler()({
       template_id: TEMPLATE_UUID,
-      puck_data: newPuck,
+      template_data: newPuck,
     });
     expect(updateTemplate.mock.calls[0]![1].puck_data).toEqual(newPuck);
   });

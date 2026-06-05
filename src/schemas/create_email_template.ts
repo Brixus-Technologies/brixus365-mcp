@@ -11,10 +11,10 @@ export const CreateEmailTemplateInputSchema = z.object({
     .describe(
       "Email subject line. Supports {{variable}} syntax for personalization.",
     ),
-  puck_data: z
+  template_data: z
     .record(z.unknown())
     .describe(
-      "Puck editor JSON data. Must follow the schema from `brixus_get_email_component_schema`. " +
+      "Email template structure. Must follow the schema from `brixus_get_email_component_schema`. " +
         "Contains root, content, and zones keys.",
     ),
   category: z

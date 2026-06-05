@@ -305,7 +305,7 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
-  // Email templates (Puck editor)
+  // Email templates
   // ------------------------------------------------------------------
 
   /** POST /v1/templates/puck */

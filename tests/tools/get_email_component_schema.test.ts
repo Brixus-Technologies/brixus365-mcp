@@ -21,7 +21,7 @@ describe("brixus_get_email_component_schema handler", () => {
     const result = await mock.lastHandler()({});
     expect(result.isError).toBeFalsy();
     const structured = result.structuredContent!;
-    expect(structured.puckDataStructure).toBeDefined();
+    expect(structured.templateDataStructure).toBeDefined();
     expect(structured.minimalExample).toBeDefined();
     const components = structured.components as Record<string, unknown>;
     expect(Object.keys(components).length).toBeGreaterThanOrEqual(15);

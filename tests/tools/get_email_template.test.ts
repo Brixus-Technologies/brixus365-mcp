@@ -30,7 +30,7 @@ const SAMPLE_PUCK_DATA = {
 };
 
 describe("brixus_get_email_template handler", () => {
-  it("happy path returns template with puck data and editor URL", async () => {
+  it("happy path returns template with template data and editor URL", async () => {
     const mock = makeMockServer();
     const getTemplate = vi.fn(async () => ({
       id: TEMPLATE_UUID,
@@ -47,7 +47,7 @@ describe("brixus_get_email_template handler", () => {
     const result = await mock.lastHandler()({ template_id: TEMPLATE_UUID });
     expect(result.isError).toBeFalsy();
     expect(result.structuredContent?.id).toBe(TEMPLATE_UUID);
-    expect(result.structuredContent?.puckData).toEqual(SAMPLE_PUCK_DATA);
+    expect(result.structuredContent?.templateData).toEqual(SAMPLE_PUCK_DATA);
     expect(result.structuredContent?.editorUrl).toContain(TEMPLATE_UUID);
     expect(result.structuredContent?.editorUrl).toContain("/apps/marketing/templates/");
     expect(getTemplate).toHaveBeenCalledWith(TEMPLATE_UUID);

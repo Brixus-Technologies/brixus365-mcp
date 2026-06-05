@@ -14,11 +14,11 @@ export function registerGetEmailTemplateTool(
     "brixus_get_email_template",
     {
       title: "Get an email template",
-      description: `Retrieve an email template by ID, including its Puck editor JSON data.
+      description: `Retrieve an email template by ID, including its full template structure.
 
 Returns the template name, subject, category, detected variables, full
-\`puckData\` for inspection or modification, and an editor URL for the
-Brixus dashboard.
+\`templateData\` for inspection or modification, and an editor URL for the
+Brixus365 dashboard.
 
 Requires \`templates:read\` API key scope.`,
       inputSchema: GetEmailTemplateInputSchema,
@@ -37,7 +37,7 @@ Requires \`templates:read\` API key scope.`,
           subject: resp.subject,
           category: resp.category,
           variables: resp.variables ?? [],
-          puckData: resp.puck_data ?? resp.puckData,
+          templateData: resp.puck_data ?? resp.puckData,
           editorUrl,
         };
 

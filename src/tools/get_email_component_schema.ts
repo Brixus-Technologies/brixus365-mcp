@@ -5,9 +5,9 @@ import {
 } from "../schemas/get_email_component_schema.js";
 
 /**
- * Complete Puck email component reference. This is hardcoded — no API call
- * needed. It teaches the LLM exactly how to produce valid Puck JSON for
- * email template creation.
+ * Complete email component reference. Hardcoded — no API call needed.
+ * Teaches the LLM how to produce valid template_data JSON.
+ * (Internal note: maps to Puck editor format on the backend.)
  */
 const COMPONENT_SCHEMAS: Record<string, object> = {
   EmailContainer: {
@@ -271,8 +271,8 @@ const COMPONENT_SCHEMAS: Record<string, object> = {
   },
 };
 
-const PUCK_DATA_STRUCTURE = {
-  description: "Top-level Puck data structure for email templates",
+const TEMPLATE_DATA_STRUCTURE = {
+  description: "Top-level template data structure for email templates",
   structure: {
     root: { props: { title: "string — email title" } },
     content: "Array of top-level components (usually just one EmailContainer)",
@@ -363,11 +363,11 @@ export function registerGetEmailComponentSchemaTool(server: McpServer): void {
   server.registerTool(
     "brixus_get_email_component_schema",
     {
-      title: "Get Puck email component schema reference",
-      description: `Returns the complete schema reference for all 16 Puck email components.
+      title: "Get email component schema reference",
+      description: `Returns the complete schema reference for all 16 email components.
 
 Use this BEFORE creating or updating an email template to understand:
-- The Puck data structure (root, content, zones)
+- The template data structure (root, content, zones)
 - Zone naming conventions for each container component
 - All component types with their props, types, and defaults
 - A minimal working example
@@ -399,7 +399,7 @@ Optionally filter by \`component_name\` to get a single component's schema.`,
       }
 
       const result = {
-        puckDataStructure: PUCK_DATA_STRUCTURE,
+        templateDataStructure: TEMPLATE_DATA_STRUCTURE,
         components,
         minimalExample: MINIMAL_EXAMPLE,
       };

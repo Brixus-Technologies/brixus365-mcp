@@ -14,12 +14,12 @@ export function registerCreateEmailTemplateTool(
     "brixus_create_email_template",
     {
       title: "Create an email template",
-      description: `Create a new email template with Puck editor JSON data.
+      description: `Create a new email template with structured template data.
 
 IMPORTANT: Call \`brixus_get_email_component_schema\` first to understand the
-required Puck JSON structure, component types, and zone naming conventions.
+required template structure, component types, and zone naming conventions.
 
-The \`puck_data\` object must contain:
+The \`template_data\` object must contain:
   - \`root\`: { props: { title: "..." } }
   - \`content\`: array of top-level components (usually one EmailContainer)
   - \`zones\`: object mapping zone keys to child component arrays
@@ -42,7 +42,7 @@ Requires \`templates:write\` API key scope.`,
         const resp = await client.createTemplate({
           name: params.name,
           subject: params.subject,
-          puck_data: params.puck_data,
+          puck_data: params.template_data,
           category: params.category,
         });
 
