@@ -55,7 +55,54 @@ to the underlying RBAC permissions (`marketing:campaigns:read`,
 `marketing:campaigns:send`, etc.). Create or update keys at
 https://app.brixus365.com/settings/api-keys.
 
-## 1-minute quickstart
+## Two ways to connect
+
+### Option A: Hosted remote server (recommended)
+
+No API key needed — sign in with your Brixus365 account via OAuth.
+
+<details open>
+<summary><b>Claude Code</b> (CLI)</summary>
+
+```bash
+claude mcp add brixus365 --transport http https://mcp.brixus365.com/mcp
+```
+
+Claude Code will open a browser for you to authorize. Done.
+</details>
+
+<details>
+<summary><b>Claude Desktop / Cursor / Cline / any stdio client</b></summary>
+
+Use the `mcp-remote` bridge to connect stdio clients to the hosted server:
+
+```json
+{
+  "mcpServers": {
+    "brixus365": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.brixus365.com/mcp"]
+    }
+  }
+}
+```
+
+On first use, a browser window opens for OAuth login. The token is cached locally.
+</details>
+
+<details>
+<summary><b>Claude.ai / ChatGPT</b> (web & mobile)</summary>
+
+Search for **Brixus365** in the integrations directory, or add it as a
+custom remote MCP server at `https://mcp.brixus365.com/mcp`.
+</details>
+
+---
+
+### Option B: Local npm package (self-hosted)
+
+Run the server locally with an API key. Best for CI pipelines, air-gapped
+environments, or if you prefer managing credentials yourself.
 
 1. **Get a Brixus API key.** Sign up at
    https://brixus365.com/developers and copy the `bx_preview_...` (or
