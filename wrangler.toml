@@ -10,15 +10,10 @@ WORKER_URL = "https://mcp.brixus365.com"
 
 # KV namespace for workers-oauth-provider token/client/grant storage.
 #
-# !! PLACEHOLDER IDs -- replace before deploying !!
-# Create the namespaces with:
-#   wrangler kv namespace create OAUTH_KV
-#   wrangler kv namespace create OAUTH_KV --preview
-# Then paste the returned IDs below.
 [[kv_namespaces]]
 binding = "OAUTH_KV"
-id = "PLACEHOLDER_PRODUCTION_KV_ID"
-preview_id = "PLACEHOLDER_PREVIEW_KV_ID"
+id = "38cbd62353f34972b3a42f7122e07b61"
+preview_id = "51a1652b0bb444d1ae00bd2045201dbf"
 
 # Secrets (NOT in wrangler.toml -- set via `wrangler secret put`):
 # WORKER_SHARED_SECRET       — shared secret for server-to-server nonce exchange
