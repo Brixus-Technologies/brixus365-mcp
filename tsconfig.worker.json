@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist-worker",
+    "rootDir": "./src",
+    "noEmit": true
+  },
+  "include": [
+    "src/worker.ts",
+    "src/mcp-handler.ts",
+    "src/oauth-handler.ts",
+    "src/client.ts",
+    "src/tools/**/*",
+    "src/schemas/**/*",
+    "src/errors.ts",
+    "src/constants.ts"
+  ],
+  "exclude": ["node_modules", "dist", "tests", "src/index.ts"]
+}

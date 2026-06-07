@@ -12,13 +12,23 @@
   "bugs": {
     "url": "https://github.com/Brixus-Technologies/brixus365-mcp/issues"
   },
-  "keywords": ["mcp", "model-context-protocol", "email", "brixus365", "claude"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "email",
+    "brixus365",
+    "claude"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "brixus365-mcp-server": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20"
   },
@@ -31,16 +41,23 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build && npm test"
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "deploy": "wrangler deploy",
+    "dev:worker": "wrangler dev",
+    "worker:typecheck": "tsc -p tsconfig.worker.json --noEmit"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@cloudflare/workers-oauth-provider": "^0.7.2",
+    "@cloudflare/workers-types": "^4.20260607.1",
     "@types/node": "^22.10.0",
+    "agents": "^0.14.4",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "wrangler": "^4.98.0"
   }
 }

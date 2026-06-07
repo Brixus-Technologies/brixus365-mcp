@@ -1,0 +1,19 @@
+name = "brixus365-mcp"
+main = "src/worker.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+BRIXUS_API_BASE_URL = "https://app.brixus365.com/api/v1"
+BRIXUS_FRONTEND_URL = "https://app.brixus365.com"
+WORKER_URL = "https://mcp.brixus365.com"
+
+# KV namespace for workers-oauth-provider token/client/grant storage
+[[kv_namespaces]]
+binding = "OAUTH_KV"
+id = "PLACEHOLDER_PRODUCTION_KV_ID"
+preview_id = "PLACEHOLDER_PREVIEW_KV_ID"
+
+# Secrets (NOT in wrangler.toml -- set via `wrangler secret put`):
+# WORKER_SHARED_SECRET       — shared secret for server-to-server nonce exchange
+# OAUTH_STATE_HMAC_SECRET    — HMAC secret for signing oauth_state parameter
