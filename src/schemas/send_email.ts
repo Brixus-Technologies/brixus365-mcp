@@ -53,8 +53,8 @@ export const SendEmailInputSchema = z.object({
     .string()
     .min(1)
     .regex(
-      /^[a-z0-9-]+$/,
-      "`starter_template` must be a kebab-case slug (lowercase letters, digits, hyphens).",
+      /^[a-z0-9_-]+$/,
+      "`starter_template` must be a slug (lowercase letters, digits, hyphens, underscores).",
     )
     .optional()
     .describe(

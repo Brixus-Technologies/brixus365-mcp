@@ -23,7 +23,7 @@ const BatchMessageSchema = z.object({
   starter_template: z
     .string()
     .min(1)
-    .regex(/^[a-z0-9-]+$/)
+    .regex(/^[a-z0-9_-]+$/)
     .optional()
     .describe("Exactly one of starter_template, template_id, or html is required per message."),
   template_id: z.string().uuid().optional(),

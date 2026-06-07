@@ -4,8 +4,8 @@ export const PreviewStarterTemplateInputSchema = z.object({
   slug: z
     .string()
     .min(1, "`slug` cannot be empty")
-    .regex(/^[a-z0-9-]+$/,
-      "`slug` must be kebab-case (lowercase, digits, hyphens).")
+    .regex(/^[a-z0-9_-]+$/,
+      "`slug` must be a slug (lowercase, digits, hyphens, underscores).")
     .describe("Starter-template slug to render."),
   variables: z
     .record(z.string(), z.unknown())

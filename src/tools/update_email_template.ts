@@ -32,6 +32,12 @@ Requires \`templates:write\` API key scope.`,
       },
     },
     async (params: UpdateEmailTemplateInput) => {
+      if (!params.template_data && !params.subject && !params.name) {
+        return {
+          content: [{ type: "text" as const, text: "At least one of template_data, subject, or name must be provided." }],
+          isError: true,
+        };
+      }
       try {
         const resp = await client.updateTemplate(params.template_id, {
           puck_data: params.template_data,

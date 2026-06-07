@@ -10,7 +10,7 @@ export function registerEmailAnalyticsTool(server: McpServer, client: BrixusClie
       title: "Get email sending analytics",
       description: `Retrieve aggregated sending analytics: sent, delivered, opened, clicked, bounced, failed.
 
-Optionally filter by date range (\`from\`/\`to\`) and choose aggregation granularity:
+Filter by date range (\`from\`/\`to\`, both required) and choose aggregation granularity:
   - \`hour\`: intraday breakdown
   - \`day\`: daily rollups (default)
 
