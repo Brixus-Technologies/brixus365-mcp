@@ -148,7 +148,7 @@ export class BrixusClient {
     this.baseUrl = (options.baseUrl ?? DEFAULT_API_BASE_URL).replace(/\/$/, "");
     const version = options.version ?? "0.0.0";
     this.userAgent = `${USER_AGENT_BASE}/${version}`;
-    this.fetchFn = options.fetchFn ?? fetch;
+    this.fetchFn = options.fetchFn ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
     this.timeoutMs = options.timeoutMs ?? 30_000;
   }
 

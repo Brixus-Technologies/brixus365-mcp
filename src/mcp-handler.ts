@@ -94,9 +94,21 @@ export class McpApiHandler extends WorkerEntrypoint<Env> {
       version: "0.3.0",
     });
 
-    // Create stateless MCP server and handle the request
+    // Create stateless MCP server and handle the request.
+    // createMcpHandler returns (request, env, ctx) => Response.
+    // Pass route: "/" because OAuthProvider already routed us to /mcp —
+    // the request.url still contains /mcp but the handler checks pathname
+    // against its route option, so we match on "/" to avoid a 404.
     const server = createServer(client);
-    const handler = createMcpHandler(server);
-    return handler(request, this.env, this.ctx);
+    const handler = createMcpHandler(server, { route: "/mcp" });
+
+    // Spread ctx to avoid "Illegal invocation" from Workers runtime
+    // when the handler accesses ctx methods with a detached `this`.
+    const ctx = {
+      waitUntil: this.ctx.waitUntil.bind(this.ctx),
+      passThroughOnException: this.ctx.passThroughOnException.bind(this.ctx),
+      props: (this.ctx as any).props || {},
+    };
+    return handler(request, this.env, ctx as any);
   }
 }
