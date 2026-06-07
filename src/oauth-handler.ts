@@ -16,7 +16,7 @@ import type { Env } from "./worker.js";
 
 // --- HMAC helpers ---
 
-async function hmacSign(payload: string, secret: string): Promise<string> {
+export async function hmacSign(payload: string, secret: string): Promise<string> {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
@@ -33,7 +33,7 @@ async function hmacSign(payload: string, secret: string): Promise<string> {
   return base64urlEncode(new Uint8Array(signature));
 }
 
-async function hmacVerify(
+export async function hmacVerify(
   payload: string,
   signature: string,
   secret: string,
@@ -50,14 +50,14 @@ async function hmacVerify(
 
 // --- base64url encode/decode (no padding) ---
 
-function base64urlEncode(data: string | Uint8Array): string {
+export function base64urlEncode(data: string | Uint8Array): string {
   const bytes =
     typeof data === "string" ? new TextEncoder().encode(data) : data;
   const base64 = btoa(String.fromCharCode(...bytes));
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
-function base64urlDecode(encoded: string): string {
+export function base64urlDecode(encoded: string): string {
   let base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
   while (base64.length % 4) base64 += "=";
   const binary = atob(base64);

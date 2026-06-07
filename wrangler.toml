@@ -8,7 +8,13 @@ BRIXUS_API_BASE_URL = "https://app.brixus365.com/api/v1"
 BRIXUS_FRONTEND_URL = "https://app.brixus365.com"
 WORKER_URL = "https://mcp.brixus365.com"
 
-# KV namespace for workers-oauth-provider token/client/grant storage
+# KV namespace for workers-oauth-provider token/client/grant storage.
+#
+# !! PLACEHOLDER IDs -- replace before deploying !!
+# Create the namespaces with:
+#   wrangler kv namespace create OAUTH_KV
+#   wrangler kv namespace create OAUTH_KV --preview
+# Then paste the returned IDs below.
 [[kv_namespaces]]
 binding = "OAUTH_KV"
 id = "PLACEHOLDER_PRODUCTION_KV_ID"

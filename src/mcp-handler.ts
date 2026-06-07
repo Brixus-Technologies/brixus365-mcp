@@ -33,7 +33,7 @@ import { registerCreateEmailTemplateTool } from "./tools/create_email_template.j
 import { registerUpdateEmailTemplateTool } from "./tools/update_email_template.js";
 import { registerGetEmailTemplateTool } from "./tools/get_email_template.js";
 
-function createServer(client: BrixusClient): McpServer {
+export function createServer(client: BrixusClient): McpServer {
   const server = new McpServer({
     name: "brixus365-mcp-server",
     version: "0.3.0",
@@ -70,7 +70,9 @@ function createServer(client: BrixusClient): McpServer {
 
 export class McpApiHandler extends WorkerEntrypoint<Env> {
   async fetch(request: Request): Promise<Response> {
-    // this.ctx.props contains the props from completeAuthorization()
+    // `props` is injected at runtime by OAuthProvider via completeAuthorization(),
+    // but the WorkerEntrypoint<Env> type doesn't include it on ctx.
+    // Cast to `any` to access the runtime-only property.
     const apiKey: string | undefined = (this.ctx as any).props?.api_key;
 
     if (!apiKey) {
