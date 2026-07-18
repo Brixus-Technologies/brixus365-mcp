@@ -42,6 +42,16 @@ import { registerListWebhooksTool } from "./tools/list_webhooks.js";
 import { registerCreateWebhookTool } from "./tools/create_webhook.js";
 import { registerDeleteWebhookTool } from "./tools/delete_webhook.js";
 import { registerTestWebhookTool } from "./tools/test_webhook.js";
+import { registerGetMarketingDashboardTool } from "./tools/get_marketing_dashboard.js";
+import { registerGetCampaignEngagementTool } from "./tools/get_campaign_engagement.js";
+import { registerGetCampaignLinkPerformanceTool } from "./tools/get_campaign_link_performance.js";
+import { registerGetSendingHealthTool } from "./tools/get_sending_health.js";
+import { registerCreateCampaignTool } from "./tools/create_campaign.js";
+import { registerUpdateCampaignTool } from "./tools/update_campaign.js";
+import { registerSendCampaignTool } from "./tools/send_campaign.js";
+import { registerPauseCampaignTool } from "./tools/pause_campaign.js";
+import { registerResumeCampaignTool } from "./tools/resume_campaign.js";
+import { registerListSenderAddressesTool } from "./tools/list_sender_addresses.js";
 
 function readVersion(): string {
   try {
@@ -122,6 +132,22 @@ async function main(): Promise<void> {
   registerCreateWebhookTool(server, client);
   registerDeleteWebhookTool(server, client);
   registerTestWebhookTool(server, client);
+
+  // Marketing analytics
+  registerGetMarketingDashboardTool(server, client);
+  registerGetCampaignEngagementTool(server, client);
+  registerGetCampaignLinkPerformanceTool(server, client);
+  registerGetSendingHealthTool(server, client);
+
+  // Campaign management
+  registerCreateCampaignTool(server, client);
+  registerUpdateCampaignTool(server, client);
+  registerSendCampaignTool(server, client);
+  registerPauseCampaignTool(server, client);
+  registerResumeCampaignTool(server, client);
+
+  // Sender addresses
+  registerListSenderAddressesTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

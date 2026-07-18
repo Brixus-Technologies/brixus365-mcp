@@ -567,13 +567,128 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
+  // Marketing analytics
+  // ------------------------------------------------------------------
+
+  /** GET /v1/marketing/analytics/dashboard */
+  async getMarketingDashboard(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/analytics/dashboard", {
+      method: "GET",
+    });
+  }
+
+  /** GET /v1/marketing/analytics/campaigns/{campaign_id}/engagement */
+  async getCampaignEngagement(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/analytics/campaigns/${encodeURIComponent(campaignId)}/engagement`,
+      { method: "GET" },
+    );
+  }
+
+  /** GET /v1/marketing/analytics/campaigns/{campaign_id}/links */
+  async getCampaignLinkPerformance(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/analytics/campaigns/${encodeURIComponent(campaignId)}/links`,
+      { method: "GET" },
+    );
+  }
+
+  /** GET /v1/marketing/analytics/sending-health */
+  async getSendingHealth(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/analytics/sending-health", {
+      method: "GET",
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Marketing campaigns (create/update/send/pause/resume)
+  // ------------------------------------------------------------------
+
+  /** POST /v1/marketing/campaigns/ */
+  async createCampaign(params: {
+    name: string;
+    channel: "email" | "sms" | "whatsapp";
+    template_id?: string;
+    recipient_group_ids?: string[];
+    scheduled_at?: string;
+  }): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {
+      name: params.name,
+      channel: params.channel,
+    };
+    if (params.template_id) body.templateId = params.template_id;
+    if (params.recipient_group_ids) body.recipientGroupIds = params.recipient_group_ids;
+    if (params.scheduled_at) body.scheduledAt = params.scheduled_at;
+    return this.request<Record<string, unknown>>("/marketing/campaigns/", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  /** PATCH /v1/marketing/campaigns/{campaign_id} */
+  async updateCampaign(
+    campaignId: string,
+    params: {
+      name?: string;
+      template_id?: string;
+      recipient_group_ids?: string[];
+      scheduled_at?: string;
+    },
+  ): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {};
+    if (params.name !== undefined) body.name = params.name;
+    if (params.template_id !== undefined) body.templateId = params.template_id;
+    if (params.recipient_group_ids !== undefined) body.recipientGroupIds = params.recipient_group_ids;
+    if (params.scheduled_at !== undefined) body.scheduledAt = params.scheduled_at;
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}`,
+      { method: "PATCH", body: JSON.stringify(body) },
+    );
+  }
+
+  /** POST /v1/marketing/campaigns/{campaign_id}/send */
+  async sendCampaign(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}/send`,
+      { method: "POST" },
+    );
+  }
+
+  /** POST /v1/marketing/campaigns/{campaign_id}/pause */
+  async pauseCampaign(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}/pause`,
+      { method: "POST" },
+    );
+  }
+
+  /** POST /v1/marketing/campaigns/{campaign_id}/resume */
+  async resumeCampaign(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}/resume`,
+      { method: "POST" },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Sender addresses
+  // ------------------------------------------------------------------
+
+  /** GET /v1/settings/sender-addresses/ */
+  async listSenderAddresses(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/settings/sender-addresses/", {
+      method: "GET",
+    });
+  }
+
+  // ------------------------------------------------------------------
   // Internal
   // ------------------------------------------------------------------
 
   private async request<T>(
     path: string,
     init: {
-      method: "GET" | "POST" | "PUT" | "DELETE";
+      method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
       body?: string;
       query?: Record<string, string | number | boolean | undefined>;
       headers?: Record<string, string>;

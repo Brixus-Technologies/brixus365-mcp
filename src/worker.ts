@@ -67,5 +67,7 @@ export default new OAuthProvider<Env>({
     "domains:manage",
     "webhooks:read",
     "webhooks:manage",
+    // Phase 2 additions
+    "senders:read",
   ],
 });
