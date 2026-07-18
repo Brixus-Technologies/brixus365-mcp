@@ -415,6 +415,158 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
+  // Contacts
+  // ------------------------------------------------------------------
+
+  /** GET /v1/contacts */
+  async listContacts(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    sort_by?: string;
+    sort_order?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/contacts", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+        search: params.search,
+        status: params.status,
+        sort_by: params.sort_by,
+        sort_order: params.sort_order,
+      },
+    });
+  }
+
+  /** GET /v1/contacts/{contact_id} */
+  async getContact(contactId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/contacts/${encodeURIComponent(contactId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /** GET /v1/contacts/stats */
+  async getAudienceStats(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/contacts/stats", {
+      method: "GET",
+    });
+  }
+
+  /** POST /v1/contacts/bulk-create */
+  async createContacts(recipients: Array<{
+    email?: string;
+    phone?: string;
+    name?: string;
+    variables?: Record<string, string>;
+  }>, groupId?: string): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = { recipients };
+    if (groupId) body.groupId = groupId;
+    return this.request<Record<string, unknown>>("/contacts/bulk-create", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Template listing (API-key shape)
+  // ------------------------------------------------------------------
+
+  /** GET /v1/templates (API-key response: items/total/skip/limit) */
+  async listTemplates(params: {
+    skip?: number;
+    limit?: number;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/templates", {
+      method: "GET",
+      query: {
+        skip: params.skip,
+        limit: params.limit,
+      },
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Email domains
+  // ------------------------------------------------------------------
+
+  /** GET /v1/settings/email-domains */
+  async listDomains(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/settings/email-domains", {
+      method: "GET",
+    });
+  }
+
+  /** GET /v1/settings/email-domains/{domain_id} */
+  async getDomain(domainId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/settings/email-domains/${encodeURIComponent(domainId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /** POST /v1/settings/email-domains/{domain_id}/verify */
+  async verifyDomain(domainId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/settings/email-domains/${encodeURIComponent(domainId)}/verify`,
+      { method: "POST" },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Developer webhooks
+  // ------------------------------------------------------------------
+
+  /** GET /v1/webhooks */
+  async listWebhooks(params: {
+    skip?: number;
+    limit?: number;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/webhooks", {
+      method: "GET",
+      query: {
+        skip: params.skip,
+        limit: params.limit,
+      },
+    });
+  }
+
+  /** POST /v1/webhooks */
+  async createWebhook(params: {
+    url: string;
+    event_types: string[];
+    description?: string;
+  }): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {
+      url: params.url,
+      eventTypes: params.event_types,
+    };
+    if (params.description) body.description = params.description;
+    return this.request<Record<string, unknown>>("/webhooks", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  /** DELETE /v1/webhooks/{subscription_id} */
+  async deleteWebhook(subscriptionId: string): Promise<void> {
+    return this.request<void>(
+      `/webhooks/${encodeURIComponent(subscriptionId)}`,
+      { method: "DELETE" },
+    );
+  }
+
+  /** POST /v1/webhooks/{subscription_id}/test */
+  async testWebhook(subscriptionId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/webhooks/${encodeURIComponent(subscriptionId)}/test`,
+      { method: "POST" },
+    );
+  }
+
+  // ------------------------------------------------------------------
   // Internal
   // ------------------------------------------------------------------
 

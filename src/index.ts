@@ -30,6 +30,18 @@ import { registerGetEmailComponentSchemaTool } from "./tools/get_email_component
 import { registerCreateEmailTemplateTool } from "./tools/create_email_template.js";
 import { registerUpdateEmailTemplateTool } from "./tools/update_email_template.js";
 import { registerGetEmailTemplateTool } from "./tools/get_email_template.js";
+import { registerListContactsTool } from "./tools/list_contacts.js";
+import { registerGetContactTool } from "./tools/get_contact.js";
+import { registerGetAudienceStatsTool } from "./tools/get_audience_stats.js";
+import { registerCreateContactsTool } from "./tools/create_contacts.js";
+import { registerListEmailTemplatesTool } from "./tools/list_email_templates.js";
+import { registerListDomainsTool } from "./tools/list_domains.js";
+import { registerGetDomainTool } from "./tools/get_domain.js";
+import { registerVerifyDomainTool } from "./tools/verify_domain.js";
+import { registerListWebhooksTool } from "./tools/list_webhooks.js";
+import { registerCreateWebhookTool } from "./tools/create_webhook.js";
+import { registerDeleteWebhookTool } from "./tools/delete_webhook.js";
+import { registerTestWebhookTool } from "./tools/test_webhook.js";
 
 function readVersion(): string {
   try {
@@ -90,6 +102,26 @@ async function main(): Promise<void> {
   registerCreateEmailTemplateTool(server, client);
   registerUpdateEmailTemplateTool(server, client);
   registerGetEmailTemplateTool(server, client);
+
+  // Contacts
+  registerListContactsTool(server, client);
+  registerGetContactTool(server, client);
+  registerGetAudienceStatsTool(server, client);
+  registerCreateContactsTool(server, client);
+
+  // Template listing
+  registerListEmailTemplatesTool(server, client);
+
+  // Email domains
+  registerListDomainsTool(server, client);
+  registerGetDomainTool(server, client);
+  registerVerifyDomainTool(server, client);
+
+  // Developer webhooks
+  registerListWebhooksTool(server, client);
+  registerCreateWebhookTool(server, client);
+  registerDeleteWebhookTool(server, client);
+  registerTestWebhookTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

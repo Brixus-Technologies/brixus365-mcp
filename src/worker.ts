@@ -53,11 +53,19 @@ export default new OAuthProvider<Env>({
 
   // Available scopes
   scopesSupported: [
+    // Existing
     "emails:send",
     "emails:read",
     "marketing:read",
     "marketing:write",
     "templates:read",
     "templates:write",
+    // Phase 1 additions
+    "contacts:read",
+    "contacts:write",
+    "domains:read",
+    "domains:manage",
+    "webhooks:read",
+    "webhooks:manage",
   ],
 });
