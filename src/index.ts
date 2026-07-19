@@ -59,6 +59,10 @@ import { registerActivateWorkflowTool } from "./tools/activate_workflow.js";
 import { registerPauseWorkflowTool } from "./tools/pause_workflow.js";
 import { registerDeactivateWorkflowTool } from "./tools/deactivate_workflow.js";
 import { registerGetWorkflowAnalyticsTool } from "./tools/get_workflow_analytics.js";
+import { registerCloneWorkflowTemplateTool } from "./tools/clone_workflow_template.js";
+import { registerCreateWorkflowTool } from "./tools/create_workflow.js";
+import { registerSetWorkflowStepsTool } from "./tools/set_workflow_steps.js";
+import { registerUpdateWorkflowTool } from "./tools/update_workflow.js";
 import { registerListOrdersTool } from "./tools/list_orders.js";
 import { registerListProductsTool } from "./tools/list_products.js";
 import { registerGetCommerceDashboardTool } from "./tools/get_commerce_dashboard.js";
@@ -167,7 +171,7 @@ async function main(): Promise<void> {
   // Sender addresses
   registerListSenderAddressesTool(server, client);
 
-  // Workflows (requires workflows:read / workflows:manage scope)
+  // Workflows (requires workflows:read / workflows:manage / workflows:write scope)
   registerListWorkflowsTool(server, client);
   registerGetWorkflowTool(server, client);
   registerListWorkflowTemplatesTool(server, client);
@@ -175,6 +179,10 @@ async function main(): Promise<void> {
   registerPauseWorkflowTool(server, client);
   registerDeactivateWorkflowTool(server, client);
   registerGetWorkflowAnalyticsTool(server, client);
+  registerCloneWorkflowTemplateTool(server, client);
+  registerCreateWorkflowTool(server, client);
+  registerSetWorkflowStepsTool(server, client);
+  registerUpdateWorkflowTool(server, client);
 
   // Commerce (requires commerce:read scope)
   registerListOrdersTool(server, client);

@@ -748,6 +748,47 @@ export class BrixusClient {
     );
   }
 
+  /** POST /v1/workflows/templates/{template_id}/clone */
+  async cloneWorkflowTemplate(
+    templateId: string,
+    body: { name?: string },
+  ): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/templates/${encodeURIComponent(templateId)}/clone`,
+      { method: "POST", body: JSON.stringify(body) },
+    );
+  }
+
+  /** POST /v1/workflows/ */
+  async createWorkflow(body: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/workflows/", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  /** PUT /v1/workflows/{workflow_id}/steps */
+  async setWorkflowSteps(
+    workflowId: string,
+    steps: unknown[],
+  ): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}/steps`,
+      { method: "PUT", body: JSON.stringify({ steps }) },
+    );
+  }
+
+  /** PATCH /v1/workflows/{workflow_id} */
+  async updateWorkflow(
+    workflowId: string,
+    body: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}`,
+      { method: "PATCH", body: JSON.stringify(body) },
+    );
+  }
+
   // ------------------------------------------------------------------
   // Commerce
   // ------------------------------------------------------------------
