@@ -5,6 +5,7 @@ import {
   UpdateEmailTemplateInputSchema,
   type UpdateEmailTemplateInput,
 } from "../schemas/update_email_template.js";
+import { validateTemplateData } from "../schemas/validate_template_data.js";
 
 export function registerUpdateEmailTemplateTool(
   server: McpServer,
@@ -22,6 +23,10 @@ must be provided.
 
 Call \`brixus_get_email_component_schema\` for the template structure reference.
 
+When \`template_data\` is supplied it must follow the same font & layout rules as
+create: system stack for text \`fontFamily\`, the full \`"SFMono-Regular", …\` stack
+for monospace, and no \`position: absolute\`. A template that breaks these is rejected.
+
 Requires \`templates:write\` API key scope.`,
       inputSchema: UpdateEmailTemplateInputSchema,
       annotations: {
@@ -37,6 +42,22 @@ Requires \`templates:write\` API key scope.`,
           content: [{ type: "text" as const, text: "At least one of template_data, subject, or name must be provided." }],
           isError: true,
         };
+      }
+      if (params.template_data) {
+        const problems = validateTemplateData(params.template_data);
+        if (problems.length > 0) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text:
+                  "Template rejected before update — fix these and retry:\n- " +
+                  problems.join("\n- "),
+              },
+            ],
+            isError: true,
+          };
+        }
       }
       try {
         const resp = await client.updateTemplate(params.template_id, {

@@ -82,6 +82,32 @@ describe("brixus_create_email_template handler", () => {
     expect(createTemplate.mock.calls[0]![0].category).toBe("transactional");
   });
 
+  it("rejects a template with a bare font stack before calling the client", async () => {
+    const mock = makeMockServer();
+    const createTemplate = vi.fn(async () => ({ id: TEMPLATE_UUID }));
+    registerCreateEmailTemplateTool(
+      mock as unknown as Parameters<typeof registerCreateEmailTemplateTool>[0],
+      makeFakeClient({ createTemplate }),
+    );
+    const result = await mock.lastHandler()({
+      name: "Bad Fonts",
+      subject: "Hi",
+      template_data: {
+        zones: {
+          "c:content": [
+            {
+              type: "EmailText",
+              props: { styling: { fontFamily: "Arial, Helvetica, sans-serif" } },
+            },
+          ],
+        },
+      },
+    });
+    expect(result.isError).toBe(true);
+    expect(result.content[0]!.text).toContain("-apple-system");
+    expect(createTemplate).not.toHaveBeenCalled();
+  });
+
   it("API error surfaces as isError", async () => {
     const mock = makeMockServer();
     const err = new BrixusApiError(403, {

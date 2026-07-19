@@ -5,6 +5,7 @@ import {
   CreateEmailTemplateInputSchema,
   type CreateEmailTemplateInput,
 } from "../schemas/create_email_template.js";
+import { validateTemplateData } from "../schemas/validate_template_data.js";
 
 export function registerCreateEmailTemplateTool(
   server: McpServer,
@@ -26,6 +27,13 @@ The \`template_data\` object must contain:
 
 Use \`{{variable_name}}\` syntax in HTML content and subject for personalization.
 
+FONT & LAYOUT RULES (enforced — a template that breaks these is rejected):
+  - Text \`fontFamily\` MUST be the system stack
+    \`-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif\`.
+  - Monospace \`fontFamily\` MUST be the full stack
+    \`"SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace\`.
+  - No \`position: absolute\` (Gmail strips it and the content vanishes).
+
 Returns the created template ID and an editor URL for visual refinement.
 
 Requires \`templates:write\` API key scope.`,
@@ -38,6 +46,20 @@ Requires \`templates:write\` API key scope.`,
       },
     },
     async (params: CreateEmailTemplateInput) => {
+      const problems = validateTemplateData(params.template_data);
+      if (problems.length > 0) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text:
+                "Template rejected before creation — fix these and retry:\n- " +
+                problems.join("\n- "),
+            },
+          ],
+          isError: true,
+        };
+      }
       try {
         const resp = await client.createTemplate({
           name: params.name,
