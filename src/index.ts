@@ -52,6 +52,23 @@ import { registerSendCampaignTool } from "./tools/send_campaign.js";
 import { registerPauseCampaignTool } from "./tools/pause_campaign.js";
 import { registerResumeCampaignTool } from "./tools/resume_campaign.js";
 import { registerListSenderAddressesTool } from "./tools/list_sender_addresses.js";
+import { registerListWorkflowsTool } from "./tools/list_workflows.js";
+import { registerGetWorkflowTool } from "./tools/get_workflow.js";
+import { registerListWorkflowTemplatesTool } from "./tools/list_workflow_templates.js";
+import { registerActivateWorkflowTool } from "./tools/activate_workflow.js";
+import { registerPauseWorkflowTool } from "./tools/pause_workflow.js";
+import { registerDeactivateWorkflowTool } from "./tools/deactivate_workflow.js";
+import { registerGetWorkflowAnalyticsTool } from "./tools/get_workflow_analytics.js";
+import { registerListOrdersTool } from "./tools/list_orders.js";
+import { registerListProductsTool } from "./tools/list_products.js";
+import { registerGetCommerceDashboardTool } from "./tools/get_commerce_dashboard.js";
+import { registerListAbandonedCartsTool } from "./tools/list_abandoned_carts.js";
+import { registerGetRevenueAttributionTool } from "./tools/get_revenue_attribution.js";
+import { registerListSegmentsTool } from "./tools/list_segments.js";
+import { registerGetSegmentTool } from "./tools/get_segment.js";
+import { registerPreviewSegmentTool } from "./tools/preview_segment.js";
+import { registerListRecipientGroupsTool } from "./tools/list_recipient_groups.js";
+import { registerGetRecipientGroupTool } from "./tools/get_recipient_group.js";
 
 function readVersion(): string {
   try {
@@ -148,6 +165,31 @@ async function main(): Promise<void> {
 
   // Sender addresses
   registerListSenderAddressesTool(server, client);
+
+  // Workflows (requires workflows:read / workflows:manage scope)
+  registerListWorkflowsTool(server, client);
+  registerGetWorkflowTool(server, client);
+  registerListWorkflowTemplatesTool(server, client);
+  registerActivateWorkflowTool(server, client);
+  registerPauseWorkflowTool(server, client);
+  registerDeactivateWorkflowTool(server, client);
+  registerGetWorkflowAnalyticsTool(server, client);
+
+  // Commerce (requires commerce:read scope)
+  registerListOrdersTool(server, client);
+  registerListProductsTool(server, client);
+  registerGetCommerceDashboardTool(server, client);
+  registerListAbandonedCartsTool(server, client);
+  registerGetRevenueAttributionTool(server, client);
+
+  // Segments (requires marketing:read scope)
+  registerListSegmentsTool(server, client);
+  registerGetSegmentTool(server, client);
+  registerPreviewSegmentTool(server, client);
+
+  // Recipient groups (requires contacts:read scope)
+  registerListRecipientGroupsTool(server, client);
+  registerGetRecipientGroupTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

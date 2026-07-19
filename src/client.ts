@@ -682,6 +682,221 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
+  // Workflows
+  // ------------------------------------------------------------------
+
+  /** GET /v1/workflows/ */
+  async listWorkflows(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/workflows/", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+        status: params.status,
+      },
+    });
+  }
+
+  /** GET /v1/workflows/{workflow_id} */
+  async getWorkflow(workflowId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /** GET /v1/workflows/templates */
+  async listWorkflowTemplates(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/workflows/templates", {
+      method: "GET",
+    });
+  }
+
+  /** POST /v1/workflows/{workflow_id}/activate */
+  async activateWorkflow(workflowId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}/activate`,
+      { method: "POST" },
+    );
+  }
+
+  /** POST /v1/workflows/{workflow_id}/pause */
+  async pauseWorkflow(workflowId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}/pause`,
+      { method: "POST" },
+    );
+  }
+
+  /** POST /v1/workflows/{workflow_id}/deactivate */
+  async deactivateWorkflow(workflowId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}/deactivate`,
+      { method: "POST" },
+    );
+  }
+
+  /** GET /v1/workflows/{workflow_id}/analytics */
+  async getWorkflowAnalytics(workflowId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/workflows/${encodeURIComponent(workflowId)}/analytics`,
+      { method: "GET" },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Commerce
+  // ------------------------------------------------------------------
+
+  /** GET /v1/commerce/orders */
+  async listOrders(params: {
+    skip?: number;
+    limit?: number;
+    financial_status?: string;
+    fulfillment_status?: string;
+    search?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/commerce/orders", {
+      method: "GET",
+      query: {
+        skip: params.skip,
+        limit: params.limit,
+        financial_status: params.financial_status,
+        fulfillment_status: params.fulfillment_status,
+        search: params.search,
+      },
+    });
+  }
+
+  /** GET /v1/commerce/products */
+  async listProducts(params: {
+    skip?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/commerce/products", {
+      method: "GET",
+      query: {
+        skip: params.skip,
+        limit: params.limit,
+        status: params.status,
+        search: params.search,
+      },
+    });
+  }
+
+  /** GET /v1/commerce/dashboard */
+  async getCommerceDashboard(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/commerce/dashboard", {
+      method: "GET",
+    });
+  }
+
+  /** GET /v1/commerce/carts */
+  async listAbandonedCarts(params: {
+    skip?: number;
+    limit?: number;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/commerce/carts", {
+      method: "GET",
+      query: { skip: params.skip, limit: params.limit },
+    });
+  }
+
+  /** GET /v1/commerce/attribution */
+  async getRevenueAttribution(params: {
+    skip?: number;
+    limit?: number;
+    date_from?: string;
+    date_to?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/commerce/attribution", {
+      method: "GET",
+      query: {
+        skip: params.skip,
+        limit: params.limit,
+        date_from: params.date_from,
+        date_to: params.date_to,
+      },
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Segments
+  // ------------------------------------------------------------------
+
+  /** GET /v1/marketing/segments/ */
+  async listSegments(params: {
+    page?: number;
+    limit?: number;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/segments/", {
+      method: "GET",
+      query: {
+        page: params.page,
+        // Backend param is `page_size`, not `limit` (segments.py / recipient_groups.py
+        // both use page/page_size pagination, unlike the page/limit convention used
+        // by campaigns and workflows). Translate at the client boundary so every MCP
+        // tool exposes the same `limit` field to callers.
+        page_size: params.limit,
+      },
+    });
+  }
+
+  /** GET /v1/marketing/segments/{segment_id} */
+  async getSegment(segmentId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/segments/${encodeURIComponent(segmentId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /** POST /v1/marketing/segments/preview */
+  async previewSegment(rules: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // `rules` is forwarded as-is (snake_case field names like `field_type`).
+    // CamelModel has `populate_by_name=True`, so the backend accepts both
+    // snake_case and camelCase on the wire -- no manual conversion needed.
+    return this.request<Record<string, unknown>>("/marketing/segments/preview", {
+      method: "POST",
+      body: JSON.stringify({ rules }),
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Recipient groups
+  // ------------------------------------------------------------------
+
+  /** GET /v1/marketing/recipient-groups/ */
+  async listRecipientGroups(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/recipient-groups/", {
+      method: "GET",
+      query: {
+        page: params.page,
+        // See listSegments() -- backend param is `page_size`, not `limit`.
+        page_size: params.limit,
+        search: params.search,
+      },
+    });
+  }
+
+  /** GET /v1/marketing/recipient-groups/{group_id} */
+  async getRecipientGroup(groupId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/recipient-groups/${encodeURIComponent(groupId)}`,
+      { method: "GET" },
+    );
+  }
+
+  // ------------------------------------------------------------------
   // Internal
   // ------------------------------------------------------------------
 

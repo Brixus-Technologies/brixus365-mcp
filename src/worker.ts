@@ -69,5 +69,9 @@ export default new OAuthProvider<Env>({
     "webhooks:manage",
     // Phase 2 additions
     "senders:read",
+    // Phase 3 additions (workflows, commerce, segments, recipient groups)
+    "workflows:read",
+    "workflows:manage",
+    "commerce:read",
   ],
 });
