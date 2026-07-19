@@ -73,5 +73,8 @@ export default new OAuthProvider<Env>({
     "workflows:read",
     "workflows:manage",
     "commerce:read",
+    // Workflow-building tools (create_workflow, set_workflow_steps,
+    // update_workflow, clone_workflow_template)
+    "workflows:write",
   ],
 });
