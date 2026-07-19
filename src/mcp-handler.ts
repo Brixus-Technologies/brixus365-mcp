@@ -71,6 +71,7 @@ import { registerGetSegmentTool } from "./tools/get_segment.js";
 import { registerPreviewSegmentTool } from "./tools/preview_segment.js";
 import { registerListRecipientGroupsTool } from "./tools/list_recipient_groups.js";
 import { registerGetRecipientGroupTool } from "./tools/get_recipient_group.js";
+import { registerCreateRecipientGroupTool } from "./tools/create_recipient_group.js";
 
 export function createServer(client: BrixusClient): McpServer {
   const server = new McpServer({
@@ -164,6 +165,7 @@ export function createServer(client: BrixusClient): McpServer {
   // Recipient groups (requires contacts:read scope)
   registerListRecipientGroupsTool(server, client);
   registerGetRecipientGroupTool(server, client);
+  registerCreateRecipientGroupTool(server, client);
 
   return server;
 }

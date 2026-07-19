@@ -896,6 +896,19 @@ export class BrixusClient {
     );
   }
 
+  /** POST /v1/marketing/recipient-groups */
+  async createRecipientGroup(params: {
+    name: string;
+    description?: string;
+  }): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = { name: params.name };
+    if (params.description) body.description = params.description;
+    return this.request<Record<string, unknown>>("/marketing/recipient-groups", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
   // ------------------------------------------------------------------
   // Internal
   // ------------------------------------------------------------------

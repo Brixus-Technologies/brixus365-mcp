@@ -69,6 +69,7 @@ import { registerGetSegmentTool } from "./tools/get_segment.js";
 import { registerPreviewSegmentTool } from "./tools/preview_segment.js";
 import { registerListRecipientGroupsTool } from "./tools/list_recipient_groups.js";
 import { registerGetRecipientGroupTool } from "./tools/get_recipient_group.js";
+import { registerCreateRecipientGroupTool } from "./tools/create_recipient_group.js";
 
 function readVersion(): string {
   try {
@@ -190,6 +191,7 @@ async function main(): Promise<void> {
   // Recipient groups (requires contacts:read scope)
   registerListRecipientGroupsTool(server, client);
   registerGetRecipientGroupTool(server, client);
+  registerCreateRecipientGroupTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
