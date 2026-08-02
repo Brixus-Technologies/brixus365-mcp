@@ -106,6 +106,20 @@ export function mapToolErrorMessage(error: unknown): string {
         );
       }
 
+      case "daily_quota_partial": {
+        const willSendNow = error.extras.will_send_now as number | undefined;
+        const willDefer = error.extras.will_defer as number | undefined;
+        const fix =
+          willSendNow && willSendNow > 0
+            ? `Fix: retry \`brixus_send_campaign\` with acknowledge_quota_overage: true ` +
+              `to send the ${willSendNow} that fit today. The campaign will then pause ` +
+              `for the remaining ${willDefer ?? "rest"} -- resuming them requires the ` +
+              `dashboard or a direct API call (no MCP tool for that yet).`
+            : "Fix: no quota remains today -- do not retry. Try again tomorrow or " +
+              "schedule the campaign.";
+        return `Error (${error.code}): ${error.message}\n\n${fix}`;
+      }
+
       case "template_not_found":
         return (
           `Error (${error.code}): ${error.message}\n\n` +

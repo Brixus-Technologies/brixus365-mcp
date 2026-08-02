@@ -14,6 +14,13 @@ This is irreversible once dispatch begins — recipients cannot be un-sent to.
 Use \`brixus_send_campaign_test\` first to preview delivery to a test address,
 and \`brixus_pause_campaign\` if you need to halt a send in progress.
 
+If the recipient count exceeds the tenant's remaining daily send quota, this
+is rejected with a \`daily_quota_partial\` error naming how many would send
+now vs. how many would be held back. Retry with \`acknowledge_quota_overage:
+true\` to send what fits today — the campaign then PAUSES for the rest (no
+automatic release; resuming later needs the dashboard or a direct API call,
+there is no MCP tool for that yet).
+
 Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).
 Use \`brixus_list_campaigns\` to discover campaign IDs.`,
       inputSchema: SendCampaignInputSchema,
@@ -26,7 +33,10 @@ Use \`brixus_list_campaigns\` to discover campaign IDs.`,
     },
     async (params: SendCampaignInput) => {
       try {
-        const result = await client.sendCampaign(params.campaign_id);
+        const result = await client.sendCampaign(
+          params.campaign_id,
+          params.acknowledge_quota_overage,
+        );
         return {
           content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
           structuredContent: result,
