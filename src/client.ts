@@ -647,10 +647,18 @@ export class BrixusClient {
   }
 
   /** POST /v1/marketing/campaigns/{campaign_id}/send */
-  async sendCampaign(campaignId: string): Promise<Record<string, unknown>> {
+  async sendCampaign(
+    campaignId: string,
+    acknowledgeQuotaOverage?: boolean,
+  ): Promise<Record<string, unknown>> {
     return this.request<Record<string, unknown>>(
       `/marketing/campaigns/${encodeURIComponent(campaignId)}/send`,
-      { method: "POST" },
+      {
+        method: "POST",
+        ...(acknowledgeQuotaOverage
+          ? { body: JSON.stringify({ acknowledgeQuotaOverage: true }) }
+          : {}),
+      },
     );
   }
 
