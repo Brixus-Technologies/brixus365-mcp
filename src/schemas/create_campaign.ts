@@ -18,6 +18,13 @@ export const CreateCampaignInputSchema = z.object({
     .array(z.string().uuid())
     .optional()
     .describe("UUIDs of contact groups to send to."),
+  sender_address_id: z
+    .string()
+    .uuid()
+    .optional()
+    .describe(
+      "UUID of the verified sender address to send from. Use `brixus_list_sender_addresses` to discover sender IDs. Omit to use the tenant's default marketing sender; if the tenant has no default, the call fails with an actionable error rather than creating an unsendable campaign.",
+    ),
   scheduled_at: z
     .string()
     .optional()

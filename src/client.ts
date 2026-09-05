@@ -610,6 +610,7 @@ export class BrixusClient {
     channel: "email" | "sms" | "whatsapp";
     template_id?: string;
     recipient_group_ids?: string[];
+    sender_address_id?: string;
     scheduled_at?: string;
   }): Promise<Record<string, unknown>> {
     const body: Record<string, unknown> = {
@@ -618,6 +619,7 @@ export class BrixusClient {
     };
     if (params.template_id) body.templateId = params.template_id;
     if (params.recipient_group_ids) body.recipientGroupIds = params.recipient_group_ids;
+    if (params.sender_address_id) body.senderAddressId = params.sender_address_id;
     if (params.scheduled_at) body.scheduledAt = params.scheduled_at;
     return this.request<Record<string, unknown>>("/marketing/campaigns/", {
       method: "POST",

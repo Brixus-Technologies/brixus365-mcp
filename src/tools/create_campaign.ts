@@ -8,10 +8,16 @@ export function registerCreateCampaignTool(server: McpServer, client: BrixusClie
     "brixus_create_campaign",
     {
       title: "Create a marketing campaign",
-      description: `Create a new marketing campaign in draft (or scheduled) state.
+      description: `Create a new marketing campaign.
 
-The campaign is not sent immediately — use \`brixus_send_campaign\` to
-dispatch it, or pass \`scheduled_at\` to queue it for a future time.
+A campaign created with \`recipient_group_ids\` lands ready to send; one
+created without an audience stays a draft. Either way it is not sent
+immediately — use \`brixus_send_campaign\` to dispatch it, or pass
+\`scheduled_at\` to queue it for a future time.
+
+The sender defaults to the tenant's default marketing sender. Pass
+\`sender_address_id\` to choose a specific verified sender
+(\`brixus_list_sender_addresses\` lists them).
 
 Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).`,
       inputSchema: CreateCampaignInputSchema,
@@ -29,6 +35,7 @@ Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).`,
           channel: params.channel,
           ...(params.template_id && { template_id: params.template_id }),
           ...(params.recipient_group_ids && { recipient_group_ids: params.recipient_group_ids }),
+          ...(params.sender_address_id && { sender_address_id: params.sender_address_id }),
           ...(params.scheduled_at && { scheduled_at: params.scheduled_at }),
         });
         return {
