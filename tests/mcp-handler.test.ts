@@ -39,12 +39,12 @@ describe("createServer", () => {
     expect(server).toBeInstanceOf(McpServer);
   });
 
-  it("registers exactly 16 tools", () => {
+  it("registers exactly 60 tools", () => {
     const spy = vi.spyOn(McpServer.prototype, "registerTool");
 
     try {
       createServer(makeClient());
-      expect(spy).toHaveBeenCalledTimes(16);
+      expect(spy).toHaveBeenCalledTimes(60);
     } finally {
       spy.mockRestore();
     }
@@ -140,7 +140,11 @@ describe("McpApiHandler.fetch", () => {
   });
 
   it("does not return 500 error when api_key is present in ctx.props", async () => {
-    handler.ctx = { props: { api_key: "bx_user_real_key" } };
+    handler.ctx = {
+      props: { api_key: "bx_user_real_key" },
+      waitUntil: vi.fn(),
+      passThroughOnException: vi.fn(),
+    } as unknown as McpApiHandler["ctx"];
 
     const request = new Request("https://mcp.example.test/mcp", {
       method: "POST",
