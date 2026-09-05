@@ -197,10 +197,18 @@ describe("brixus_send_email input schema", () => {
     expect(res.success).toBe(false);
   });
 
-  it("rejects starter_template with underscore", () => {
+  it("accepts starter_template with underscore", () => {
     const res = SendEmailInputSchema.safeParse({
       to: "a@b.co",
-      starter_template: "bad_slug",
+      starter_template: "good_slug",
+    });
+    expect(res.success).toBe(true);
+  });
+
+  it("rejects starter_template with invalid characters", () => {
+    const res = SendEmailInputSchema.safeParse({
+      to: "a@b.co",
+      starter_template: "Bad Slug!",
     });
     expect(res.success).toBe(false);
   });
