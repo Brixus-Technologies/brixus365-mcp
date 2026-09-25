@@ -74,6 +74,18 @@ import { registerPreviewSegmentTool } from "./tools/preview_segment.js";
 import { registerListRecipientGroupsTool } from "./tools/list_recipient_groups.js";
 import { registerGetRecipientGroupTool } from "./tools/get_recipient_group.js";
 import { registerCreateRecipientGroupTool } from "./tools/create_recipient_group.js";
+import { registerListReportsTool } from "./tools/list_reports.js";
+import { registerGetReportDownloadUrlTool } from "./tools/get_report_download_url.js";
+import { registerListFormsTool } from "./tools/list_forms.js";
+import { registerGetFormTool } from "./tools/get_form.js";
+import { registerCreateFormTool } from "./tools/create_form.js";
+import { registerPublishFormTool } from "./tools/publish_form.js";
+import { registerGetFormAnalyticsTool } from "./tools/get_form_analytics.js";
+import { registerListPagesTool } from "./tools/list_pages.js";
+import { registerListPageTemplatesTool } from "./tools/list_page_templates.js";
+import { registerGetPageTool } from "./tools/get_page.js";
+import { registerCreatePageTool } from "./tools/create_page.js";
+import { registerGetPageAnalyticsTool } from "./tools/get_page_analytics.js";
 
 function readVersion(): string {
   try {
@@ -200,6 +212,24 @@ async function main(): Promise<void> {
   registerListRecipientGroupsTool(server, client);
   registerGetRecipientGroupTool(server, client);
   registerCreateRecipientGroupTool(server, client);
+
+  // Reports (requires contacts:read / contacts:write / marketing:read / marketing:write scope)
+  registerListReportsTool(server, client);
+  registerGetReportDownloadUrlTool(server, client);
+
+  // Forms (requires forms:read / forms:write scope)
+  registerListFormsTool(server, client);
+  registerGetFormTool(server, client);
+  registerCreateFormTool(server, client);
+  registerPublishFormTool(server, client);
+  registerGetFormAnalyticsTool(server, client);
+
+  // Marketing pages (requires pages:read / pages:write scope)
+  registerListPagesTool(server, client);
+  registerListPageTemplatesTool(server, client);
+  registerGetPageTool(server, client);
+  registerCreatePageTool(server, client);
+  registerGetPageAnalyticsTool(server, client);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

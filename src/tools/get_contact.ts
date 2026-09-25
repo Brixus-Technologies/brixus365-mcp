@@ -11,7 +11,8 @@ export function registerGetContactTool(server: McpServer, client: BrixusClient):
       description: `Retrieve full details for a single contact by UUID.
 
 Returns email, name, phone, subscription status, groups, tags,
-custom variables, engagement history, and timestamps.
+custom variables, timestamps, and engagement (opens, clicks, lastEngagedAt)
+over a configurable window (engagement_days, default 90).
 
 Requires \`contacts:read\` or \`contacts:write\` API key scope (Free tier and above).`,
       inputSchema: GetContactInputSchema,
@@ -19,7 +20,9 @@ Requires \`contacts:read\` or \`contacts:write\` API key scope (Free tier and ab
     },
     async (params: GetContactInput) => {
       try {
-        const result = await client.getContact(params.contact_id);
+        const result = await client.getContact(params.contact_id, {
+          ...(params.engagement_days !== undefined && { engagement_days: params.engagement_days }),
+        });
         return {
           content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
           structuredContent: result,
