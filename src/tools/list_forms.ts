@@ -2,41 +2,36 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { BrixusClient } from "../client.js";
 import { CHARACTER_LIMIT } from "../constants.js";
 import { mapToolErrorMessage } from "../errors.js";
-import { ListContactsInputSchema, type ListContactsInput } from "../schemas/list_contacts.js";
+import { ListFormsInputSchema, type ListFormsInput } from "../schemas/list_forms.js";
 
-export function registerListContactsTool(server: McpServer, client: BrixusClient): void {
+export function registerListFormsTool(server: McpServer, client: BrixusClient): void {
   server.registerTool(
-    "brixus_list_contacts",
+    "brixus_list_forms",
     {
-      title: "List contacts",
-      description: `Browse and filter contacts in your Brixus audience.
+      title: "List lead-capture forms",
+      description: `Browse and filter lead-capture forms in your Brixus account.
 
-Returns a paginated list of contacts with email, name, subscription status,
-groups, tags, and per-contact engagement (opens, clicks, lastEngagedAt) over
-a configurable window (engagement_days, default 90). Use this to discover
-contact IDs for \`brixus_get_contact\`.
+Returns a paginated list of forms with status (draft/published/archived),
+form type, slug, and view/submission counts. Use this to discover form IDs
+for \`brixus_get_form\`, \`brixus_publish_form\`, and
+\`brixus_get_form_analytics\`.
 
-Requires \`contacts:read\` or \`contacts:write\` API key scope (Free tier and above).
+Requires \`forms:read\` or \`forms:write\` API key scope.
 
-Filter options: search (email/name), subscription status, engagement="none"
-(zero-engagement contacts within engagement_days — for cold-contact/re-engagement
-segments).
-Sort by created_at, email, name, or engagement (clicks, then opens, then
-lastEngagedAt).`,
-      inputSchema: ListContactsInputSchema,
+Filter options: status, name search.
+Sort by created_at, updated_at, name, submission_count, or view_count.`,
+      inputSchema: ListFormsInputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    async (params: ListContactsInput) => {
+    async (params: ListFormsInput) => {
       try {
-        const result = await client.listContacts({
+        const result = await client.listForms({
           ...(params.page !== undefined && { page: params.page }),
           ...(params.limit !== undefined && { limit: params.limit }),
           ...(params.search && { search: params.search }),
           ...(params.status && { status: params.status }),
           ...(params.sort_by && { sort_by: params.sort_by }),
           ...(params.sort_order && { sort_order: params.sort_order }),
-          ...(params.engagement_days !== undefined && { engagement_days: params.engagement_days }),
-          ...(params.engagement && { engagement: params.engagement }),
         });
         const text = JSON.stringify(result, null, 2);
         return {

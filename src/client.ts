@@ -426,6 +426,8 @@ export class BrixusClient {
     status?: string;
     sort_by?: string;
     sort_order?: string;
+    engagement_days?: number;
+    engagement?: string;
   } = {}): Promise<Record<string, unknown>> {
     return this.request<Record<string, unknown>>("/contacts", {
       method: "GET",
@@ -436,15 +438,20 @@ export class BrixusClient {
         status: params.status,
         sort_by: params.sort_by,
         sort_order: params.sort_order,
+        engagement_days: params.engagement_days,
+        engagement: params.engagement,
       },
     });
   }
 
   /** GET /v1/contacts/{contact_id} */
-  async getContact(contactId: string): Promise<Record<string, unknown>> {
+  async getContact(
+    contactId: string,
+    params: { engagement_days?: number } = {},
+  ): Promise<Record<string, unknown>> {
     return this.request<Record<string, unknown>>(
       `/contacts/${encodeURIComponent(contactId)}`,
-      { method: "GET" },
+      { method: "GET", query: { engagement_days: params.engagement_days } },
     );
   }
 
@@ -958,6 +965,195 @@ export class BrixusClient {
       method: "POST",
       body: JSON.stringify(body),
     });
+  }
+
+  // ------------------------------------------------------------------
+  // Reports
+  // ------------------------------------------------------------------
+
+  /** GET /v1/reports */
+  async listReports(params: {
+    page?: number;
+    limit?: number;
+    source?: string;
+    status?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/reports", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+        source: params.source,
+        status: params.status,
+      },
+    });
+  }
+
+  /** GET /v1/reports/{report_id}/download */
+  async getReportDownloadUrl(reportId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/reports/${encodeURIComponent(reportId)}/download`,
+      { method: "GET" },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Forms
+  // ------------------------------------------------------------------
+
+  /** GET /v1/marketing/forms */
+  async listForms(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    sort_by?: string;
+    sort_order?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/forms", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+        search: params.search,
+        status: params.status,
+        sort_by: params.sort_by,
+        sort_order: params.sort_order,
+      },
+    });
+  }
+
+  /** GET /v1/marketing/forms/{form_id} */
+  async getForm(formId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/forms/${encodeURIComponent(formId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /**
+   * POST /v1/marketing/forms -- canonical slashless path. The trailing-slash
+   * form is a hidden dashboard-only compat alias (forms.py's own docstring);
+   * never use it here.
+   */
+  async createForm(params: {
+    name: string;
+    form_type?: "inline" | "hosted";
+    puck_data?: Record<string, unknown>;
+    settings?: Record<string, unknown>;
+  }): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = { name: params.name };
+    if (params.form_type) body.formType = params.form_type;
+    if (params.puck_data) body.puckData = params.puck_data;
+    // `settings` is forwarded as-is (snake_case field names like
+    // `target_group_id`). CamelModel has populate_by_name=True all the way
+    // down -- FormSettings, SuccessBehavior and BotProtectionSettings are
+    // CamelModel subclasses too -- so the backend accepts both snake_case
+    // and camelCase on the wire. No manual per-field conversion needed.
+    if (params.settings) body.settings = params.settings;
+    return this.request<Record<string, unknown>>("/marketing/forms", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  }
+
+  /** POST /v1/marketing/forms/{form_id}/publish */
+  async publishForm(formId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/forms/${encodeURIComponent(formId)}/publish`,
+      { method: "POST" },
+    );
+  }
+
+  /** GET /v1/marketing/forms/{form_id}/analytics */
+  async getFormAnalytics(
+    formId: string,
+    params: { page?: number; limit?: number; submission_status?: string } = {},
+  ): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/forms/${encodeURIComponent(formId)}/analytics`,
+      {
+        method: "GET",
+        query: {
+          page: params.page,
+          limit: params.limit,
+          submission_status: params.submission_status,
+        },
+      },
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Marketing pages
+  // ------------------------------------------------------------------
+
+  /** GET /v1/marketing/pages */
+  async listPages(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort_by?: string;
+    sort_order?: string;
+    status?: string;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/pages", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+        search: params.search,
+        sort_by: params.sort_by,
+        sort_order: params.sort_order,
+        status: params.status,
+      },
+    });
+  }
+
+  /** GET /v1/marketing/pages/templates */
+  async listPageTemplates(params: {
+    page?: number;
+    limit?: number;
+  } = {}): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/pages/templates", {
+      method: "GET",
+      query: {
+        page: params.page,
+        limit: params.limit,
+      },
+    });
+  }
+
+  /** GET /v1/marketing/pages/{lp_id} */
+  async getPage(pageId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/pages/${encodeURIComponent(pageId)}`,
+      { method: "GET" },
+    );
+  }
+
+  /**
+   * POST /v1/marketing/pages/ -- canonical path HAS a trailing slash (the
+   * opposite convention from forms). The slashless form is the hidden alias.
+   */
+  async createPage(params: {
+    name: string;
+    template_id: string;
+  }): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("/marketing/pages/", {
+      method: "POST",
+      body: JSON.stringify({
+        name: params.name,
+        templateId: params.template_id,
+      }),
+    });
+  }
+
+  /** GET /v1/marketing/pages/{lp_id}/analytics */
+  async getPageAnalytics(pageId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/pages/${encodeURIComponent(pageId)}/analytics`,
+      { method: "GET" },
+    );
   }
 
   // ------------------------------------------------------------------

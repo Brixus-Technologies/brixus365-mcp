@@ -39,12 +39,12 @@ describe("createServer", () => {
     expect(server).toBeInstanceOf(McpServer);
   });
 
-  it("registers exactly 60 tools", () => {
+  it("registers exactly 72 tools", () => {
     const spy = vi.spyOn(McpServer.prototype, "registerTool");
 
     try {
       createServer(makeClient());
-      expect(spy).toHaveBeenCalledTimes(60);
+      expect(spy).toHaveBeenCalledTimes(72);
     } finally {
       spy.mockRestore();
     }
