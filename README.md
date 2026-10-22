@@ -41,9 +41,11 @@ sends, and run campaign test emails.
 - `brixus_send_campaign_test` — send a campaign test email to 1–3
   addresses without affecting campaign statistics.
 - `brixus_reschedule_campaign` — move a scheduled campaign to a new send
-  time (at least 5 minutes in the future).
+  time (at least 5 minutes in the future). To schedule a ready campaign,
+  use `brixus_update_campaign` with `scheduled_at`.
 - `brixus_cancel_scheduled_campaign` — unschedule a scheduled campaign; it
-  returns to draft and nothing is sent.
+  returns to draft and nothing is sent. From MCP it can't be scheduled or
+  sent again afterwards (create a new campaign or use the web app).
 
 ## Required API key scopes
 

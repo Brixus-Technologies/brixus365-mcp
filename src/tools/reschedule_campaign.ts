@@ -14,9 +14,9 @@ export function registerRescheduleCampaignTool(server: McpServer, client: Brixus
       description: `Move a scheduled campaign to a new send time.
 
 Only works on a campaign whose status is \`scheduled\`. The new time must be
-at least 5 minutes in the future. To schedule a ready or draft campaign, use
-\`brixus_update_campaign\` (with \`scheduled_at\`) or \`brixus_send_campaign\`.
-To unschedule instead, use \`brixus_cancel_scheduled_campaign\`.
+at least 5 minutes in the future. To schedule a ready campaign, use
+\`brixus_update_campaign\` with \`scheduled_at\`. A draft campaign can't be
+scheduled from MCP. To unschedule instead, use \`brixus_cancel_scheduled_campaign\`.
 
 Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).
 Use \`brixus_list_campaigns\` to discover campaign IDs.`,

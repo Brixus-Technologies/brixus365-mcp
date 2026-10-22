@@ -51,6 +51,12 @@ describe("brixus_reschedule_campaign handler", () => {
     expect(mock.lastConfig().description).toContain("marketing:write");
   });
 
+  it("does not steer agents to brixus_send_campaign (it sends immediately)", () => {
+    const mock = register(vi.fn());
+    expect(mock.lastConfig().description).not.toContain("brixus_send_campaign");
+    expect(mock.lastConfig().description).toContain("brixus_update_campaign");
+  });
+
   it("happy path passes campaign_id and scheduled_at to the client and returns the campaign", async () => {
     const campaign = { id: CAMPAIGN_UUID, status: "scheduled", scheduledAt: NEW_TIME };
     const rescheduleCampaign = vi.fn(async () => campaign);

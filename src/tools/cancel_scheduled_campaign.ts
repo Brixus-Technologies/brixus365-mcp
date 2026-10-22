@@ -14,15 +14,16 @@ export function registerCancelScheduledCampaignTool(server: McpServer, client: B
       description: `Unschedule a scheduled campaign.
 
 The campaign returns to \`draft\` and nothing is sent. Only works on a
-campaign whose status is \`scheduled\`. To send at a different time instead,
-use \`brixus_reschedule_campaign\`.
+campaign whose status is \`scheduled\`. From MCP, a cancelled campaign can't
+be scheduled or sent again: create a new campaign, or use the web app. To
+change the send time instead, use \`brixus_reschedule_campaign\`.
 
 Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).
 Use \`brixus_list_campaigns\` to discover campaign IDs.`,
       inputSchema: CancelScheduledCampaignInputSchema,
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
         idempotentHint: true,
         openWorldHint: true,
       },

@@ -45,11 +45,17 @@ describe("brixus_cancel_scheduled_campaign handler", () => {
     expect(mock.registerTool.mock.calls[0]![0]).toBe("brixus_cancel_scheduled_campaign");
     expect(mock.lastConfig().annotations).toEqual({
       readOnlyHint: false,
-      destructiveHint: false,
+      destructiveHint: true,
       idempotentHint: true,
       openWorldHint: true,
     });
     expect(mock.lastConfig().description).toContain("marketing:write");
+  });
+
+  it("warns that a cancelled campaign can't be scheduled or sent again from MCP and points to reschedule", () => {
+    const mock = register(vi.fn());
+    expect(mock.lastConfig().description).toMatch(/can't\s+be scheduled or sent again/);
+    expect(mock.lastConfig().description).toContain("brixus_reschedule_campaign");
   });
 
   it("happy path calls the client with the campaign id and returns the draft campaign", async () => {
