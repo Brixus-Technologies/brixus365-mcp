@@ -4,7 +4,7 @@ export const UpdateCampaignInputSchema = z.object({
   campaign_id: z
     .string()
     .uuid()
-    .describe("UUID of the campaign to update. Only draft/scheduled campaigns can be updated."),
+    .describe("UUID of the campaign to update. Only draft or ready campaigns can be updated."),
   name: z
     .string()
     .min(1)
@@ -23,7 +23,7 @@ export const UpdateCampaignInputSchema = z.object({
   scheduled_at: z
     .string()
     .optional()
-    .describe("New ISO 8601 scheduled send time."),
+    .describe("ISO 8601 send time. On a ready campaign this schedules it."),
 }).strict();
 
 export type UpdateCampaignInput = z.infer<typeof UpdateCampaignInputSchema>;

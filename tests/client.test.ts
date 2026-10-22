@@ -401,6 +401,86 @@ describe("BrixusClient.createTemplate", () => {
   });
 });
 
+describe("BrixusClient campaign schedule management", () => {
+  const CAMPAIGN_ID = "123e4567-e89b-12d3-a456-426614174000";
+
+  function lastCall(fetchFn: typeof fetch): [string, RequestInit] {
+    const calls = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    return calls[calls.length - 1] as [string, RequestInit];
+  }
+
+  it("rescheduleCampaign POSTs scheduledAt (camelCase) to /reschedule", async () => {
+    const fetchFn = vi.fn(async () =>
+      okResponse({ id: CAMPAIGN_ID, status: "scheduled" }),
+    ) as unknown as typeof fetch;
+    const client = makeClient(fetchFn);
+
+    const result = await client.rescheduleCampaign(CAMPAIGN_ID, "2026-11-01T09:00:00Z");
+
+    expect(result).toEqual({ id: CAMPAIGN_ID, status: "scheduled" });
+    const [url, init] = lastCall(fetchFn);
+    expect(url).toBe(
+      `https://api.example.test/api/v1/marketing/campaigns/${CAMPAIGN_ID}/reschedule`,
+    );
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual({ scheduledAt: "2026-11-01T09:00:00Z" });
+  });
+
+  it("cancelScheduledCampaign POSTs to /cancel-schedule with no body", async () => {
+    const fetchFn = vi.fn(async () =>
+      okResponse({ id: CAMPAIGN_ID, status: "draft" }),
+    ) as unknown as typeof fetch;
+    const client = makeClient(fetchFn);
+
+    const result = await client.cancelScheduledCampaign(CAMPAIGN_ID);
+
+    expect(result).toEqual({ id: CAMPAIGN_ID, status: "draft" });
+    const [url, init] = lastCall(fetchFn);
+    expect(url).toBe(
+      `https://api.example.test/api/v1/marketing/campaigns/${CAMPAIGN_ID}/cancel-schedule`,
+    );
+    expect(init.method).toBe("POST");
+    expect(init.body).toBeUndefined();
+  });
+
+  it("URL-encodes the campaign id in both paths", async () => {
+    const fetchFn = vi.fn(async () => okResponse({})) as unknown as typeof fetch;
+    const client = makeClient(fetchFn);
+
+    await client.rescheduleCampaign("a/b c", "2026-11-01T09:00:00Z");
+    expect(lastCall(fetchFn)[0]).toBe(
+      "https://api.example.test/api/v1/marketing/campaigns/a%2Fb%20c/reschedule",
+    );
+
+    await client.cancelScheduledCampaign("a/b c");
+    expect(lastCall(fetchFn)[0]).toBe(
+      "https://api.example.test/api/v1/marketing/campaigns/a%2Fb%20c/cancel-schedule",
+    );
+  });
+
+  it("maps a 400 error envelope to BrixusApiError for both methods", async () => {
+    const body = {
+      error: {
+        code: "invalid_request",
+        type: "invalid_request_error",
+        message: "Only scheduled campaigns can be rescheduled",
+      },
+    };
+    const fetchFn = vi.fn(async () => errResponse(400, body)) as unknown as typeof fetch;
+    const client = makeClient(fetchFn);
+
+    for (const call of [
+      () => client.rescheduleCampaign(CAMPAIGN_ID, "2026-11-01T09:00:00Z"),
+      () => client.cancelScheduledCampaign(CAMPAIGN_ID),
+    ]) {
+      const err = await call().catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(BrixusApiError);
+      expect((err as BrixusApiError).status).toBe(400);
+      expect((err as BrixusApiError).code).toBe("invalid_request");
+    }
+  });
+});
+
 describe("BrixusClient headers", () => {
   it("sets User-Agent header to brixus365-mcp-server/<version>", async () => {
     const fetchFn = vi.fn(async () =>
