@@ -8,7 +8,8 @@ export function registerSendCampaignTool(server: McpServer, client: BrixusClient
     "brixus_send_campaign",
     {
       title: "Send a campaign",
-      description: `Queue a draft campaign for sending to its recipients now.
+      description: `Send a ready or scheduled campaign to its recipients immediately. A draft
+campaign is rejected.
 
 This is irreversible once dispatch begins — recipients cannot be un-sent to.
 Use \`brixus_send_campaign_test\` first to preview delivery to a test address,

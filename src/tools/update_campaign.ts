@@ -8,10 +8,13 @@ export function registerUpdateCampaignTool(server: McpServer, client: BrixusClie
     "brixus_update_campaign",
     {
       title: "Update a marketing campaign",
-      description: `Update settings on an existing draft or scheduled campaign.
+      description: `Update settings on an existing draft or ready campaign.
 
 Only fields you provide are changed — omitted fields are left as-is.
-Campaigns that are already sending or completed cannot be updated.
+Passing \`scheduled_at\` on a ready campaign schedules it. A campaign that is
+already scheduled cannot be updated here: use \`brixus_reschedule_campaign\`
+to move its send time or \`brixus_cancel_scheduled_campaign\` to unschedule it.
+Campaigns that are sending or completed cannot be updated.
 
 Requires \`marketing:write\` API key scope (Pro/Enterprise tier only).
 Use \`brixus_list_campaigns\` to discover campaign IDs.`,

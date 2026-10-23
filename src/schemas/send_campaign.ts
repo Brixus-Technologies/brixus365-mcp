@@ -6,7 +6,9 @@ export const SendCampaignInputSchema = z.object({
     .uuid()
     .describe(
       "UUID of the campaign to send. This dispatches the campaign to its recipients " +
-        "immediately (or per its schedule) and cannot be undone.",
+        "immediately, even if it is scheduled, and cannot be undone. To send later, " +
+        "schedule it with `brixus_update_campaign` (ready campaign) or " +
+        "`brixus_reschedule_campaign` (already scheduled).",
     ),
   acknowledge_quota_overage: z
     .boolean()

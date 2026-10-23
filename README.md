@@ -40,6 +40,12 @@ sends, and run campaign test emails.
 - `brixus_get_campaign` — fetch details for a specific campaign.
 - `brixus_send_campaign_test` — send a campaign test email to 1–3
   addresses without affecting campaign statistics.
+- `brixus_reschedule_campaign` — move a scheduled campaign to a new send
+  time (at least 5 minutes in the future). To schedule a ready campaign,
+  use `brixus_update_campaign` with `scheduled_at`.
+- `brixus_cancel_scheduled_campaign` — unschedule a scheduled campaign; it
+  returns to draft and nothing is sent. From MCP it can't be scheduled or
+  sent again afterwards (create a new campaign or use the web app).
 
 ## Required API key scopes
 
@@ -49,6 +55,7 @@ sends, and run campaign test emails.
 | API key introspection | *(no scope required)* | All tiers |
 | Marketing campaign reads (`list`, `get`) | `marketing:read` or `marketing:write` | **Pro / Enterprise only** |
 | Marketing campaign test send | `marketing:write` | **Pro / Enterprise only** |
+| Marketing campaign reschedule / cancel schedule | `marketing:write` | **Pro / Enterprise only** |
 
 `marketing:read` and `marketing:write` are shortcut scopes that resolve
 to the underlying RBAC permissions (`marketing:campaigns:read`,

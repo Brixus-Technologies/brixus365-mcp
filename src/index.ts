@@ -51,6 +51,8 @@ import { registerUpdateCampaignTool } from "./tools/update_campaign.js";
 import { registerSendCampaignTool } from "./tools/send_campaign.js";
 import { registerPauseCampaignTool } from "./tools/pause_campaign.js";
 import { registerResumeCampaignTool } from "./tools/resume_campaign.js";
+import { registerRescheduleCampaignTool } from "./tools/reschedule_campaign.js";
+import { registerCancelScheduledCampaignTool } from "./tools/cancel_scheduled_campaign.js";
 import { registerListSenderAddressesTool } from "./tools/list_sender_addresses.js";
 import { registerListWorkflowsTool } from "./tools/list_workflows.js";
 import { registerGetWorkflowTool } from "./tools/get_workflow.js";
@@ -179,6 +181,8 @@ async function main(): Promise<void> {
   registerSendCampaignTool(server, client);
   registerPauseCampaignTool(server, client);
   registerResumeCampaignTool(server, client);
+  registerRescheduleCampaignTool(server, client);
+  registerCancelScheduledCampaignTool(server, client);
 
   // Sender addresses
   registerListSenderAddressesTool(server, client);

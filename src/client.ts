@@ -608,7 +608,7 @@ export class BrixusClient {
   }
 
   // ------------------------------------------------------------------
-  // Marketing campaigns (create/update/send/pause/resume)
+  // Marketing campaigns (create/update/send/reschedule/cancel-schedule/pause/resume)
   // ------------------------------------------------------------------
 
   /** POST /v1/marketing/campaigns/ */
@@ -668,6 +668,25 @@ export class BrixusClient {
           ? { body: JSON.stringify({ acknowledgeQuotaOverage: true }) }
           : {}),
       },
+    );
+  }
+
+  /** POST /v1/marketing/campaigns/{campaign_id}/reschedule */
+  async rescheduleCampaign(
+    campaignId: string,
+    scheduledAt: string,
+  ): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}/reschedule`,
+      { method: "POST", body: JSON.stringify({ scheduledAt }) },
+    );
+  }
+
+  /** POST /v1/marketing/campaigns/{campaign_id}/cancel-schedule */
+  async cancelScheduledCampaign(campaignId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(
+      `/marketing/campaigns/${encodeURIComponent(campaignId)}/cancel-schedule`,
+      { method: "POST" },
     );
   }
 
