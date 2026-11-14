@@ -1076,6 +1076,29 @@ export class BrixusClient {
     });
   }
 
+  /**
+   * PATCH /v1/marketing/forms/{form_id} -- only the fields passed change.
+   * `puck_data` replaces the whole tree; `settings` is merged server-side.
+   */
+  async updateForm(
+    formId: string,
+    params: {
+      name?: string;
+      puck_data?: Record<string, unknown>;
+      settings?: Record<string, unknown>;
+    },
+  ): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {};
+    if (params.name !== undefined) body.name = params.name;
+    if (params.puck_data !== undefined) body.puckData = params.puck_data;
+    // Forwarded as-is, same as createForm (CamelModel accepts snake_case).
+    if (params.settings !== undefined) body.settings = params.settings;
+    return this.request<Record<string, unknown>>(
+      `/marketing/forms/${encodeURIComponent(formId)}`,
+      { method: "PATCH", body: JSON.stringify(body) },
+    );
+  }
+
   /** POST /v1/marketing/forms/{form_id}/publish */
   async publishForm(formId: string): Promise<Record<string, unknown>> {
     return this.request<Record<string, unknown>>(

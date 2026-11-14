@@ -82,6 +82,7 @@ import { registerListFormsTool } from "./tools/list_forms.js";
 import { registerGetFormTool } from "./tools/get_form.js";
 import { registerCreateFormTool } from "./tools/create_form.js";
 import { registerPublishFormTool } from "./tools/publish_form.js";
+import { registerUpdateFormTool } from "./tools/update_form.js";
 import { registerGetFormAnalyticsTool } from "./tools/get_form_analytics.js";
 import { registerListPagesTool } from "./tools/list_pages.js";
 import { registerListPageTemplatesTool } from "./tools/list_page_templates.js";
@@ -226,6 +227,7 @@ async function main(): Promise<void> {
   registerGetFormTool(server, client);
   registerCreateFormTool(server, client);
   registerPublishFormTool(server, client);
+  registerUpdateFormTool(server, client);
   registerGetFormAnalyticsTool(server, client);
 
   // Marketing pages (requires pages:read / pages:write scope)
