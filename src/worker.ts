@@ -10,6 +10,7 @@
 
 import { OAuthProvider } from "@cloudflare/workers-oauth-provider";
 import type { OAuthHelpers } from "@cloudflare/workers-oauth-provider";
+import { OAUTH_SCOPES } from "./constants.js";
 import { McpApiHandler } from "./mcp-handler.js";
 import { oauthDefaultHandler } from "./oauth-handler.js";
 
@@ -51,30 +52,6 @@ export default new OAuthProvider<Env>({
   allowPlainPKCE: false, // S256 only
   allowImplicitFlow: false,
 
-  // Available scopes
-  scopesSupported: [
-    // Existing
-    "emails:send",
-    "emails:read",
-    "marketing:read",
-    "marketing:write",
-    "templates:read",
-    "templates:write",
-    // Phase 1 additions
-    "contacts:read",
-    "contacts:write",
-    "domains:read",
-    "domains:manage",
-    "webhooks:read",
-    "webhooks:manage",
-    // Phase 2 additions
-    "senders:read",
-    // Phase 3 additions (workflows, commerce, segments, recipient groups)
-    "workflows:read",
-    "workflows:manage",
-    "commerce:read",
-    // Workflow-building tools (create_workflow, set_workflow_steps,
-    // update_workflow, clone_workflow_template)
-    "workflows:write",
-  ],
+  // Available scopes (shared with tests/scopes.test.ts via constants.ts)
+  scopesSupported: OAUTH_SCOPES,
 });
