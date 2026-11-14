@@ -516,3 +516,35 @@ describe("BrixusClient headers", () => {
     expect(url).toBe("https://api.example.test/api/v1/emails");
   });
 });
+
+describe("BrixusClient.updateForm", () => {
+  const FORM_ID = "123e4567-e89b-12d3-a456-426614174000";
+
+  function lastCall(fetchFn: typeof fetch): [string, RequestInit] {
+    return (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+  }
+
+  it("PATCHes the form with camelCase wire keys", async () => {
+    const fetchFn = vi.fn(async () => okResponse({ id: FORM_ID })) as unknown as typeof fetch;
+    await makeClient(fetchFn).updateForm(FORM_ID, {
+      name: "Renamed",
+      puck_data: { content: [] },
+      settings: { consent_required: true },
+    });
+    const [url, init] = lastCall(fetchFn);
+    expect(url).toBe(`https://api.example.test/api/v1/marketing/forms/${FORM_ID}`);
+    expect(init.method).toBe("PATCH");
+    expect(JSON.parse(init.body as string)).toEqual({
+      name: "Renamed",
+      puckData: { content: [] },
+      settings: { consent_required: true },
+    });
+  });
+
+  it("omits fields that were not passed (exclude_unset semantics on the server)", async () => {
+    const fetchFn = vi.fn(async () => okResponse({ id: FORM_ID })) as unknown as typeof fetch;
+    await makeClient(fetchFn).updateForm(FORM_ID, { name: "Only the name" });
+    const [, init] = lastCall(fetchFn);
+    expect(JSON.parse(init.body as string)).toEqual({ name: "Only the name" });
+  });
+});
