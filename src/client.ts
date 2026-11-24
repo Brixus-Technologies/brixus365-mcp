@@ -42,10 +42,23 @@ export interface SendEmailParams {
   idempotency_key?: string;
 }
 
+/** One address of a send that was not delivered to (POST /v1/emails). */
+export interface FailedRecipient {
+  email: string;
+  recipientType: "to" | "cc" | "bcc";
+  /** provider_unavailable | service_busy | a quota code such as daily_limit_exceeded */
+  code: string;
+  message: string;
+  /** The copy's message ID. Only present when a record was written. */
+  messageId?: string;
+}
+
 export interface SendEmailResponse {
   messageId: string;
   status: string;
   from: string;
+  /** Addresses that weren't sent. Missing on an API without per-address copies. */
+  failedRecipients?: FailedRecipient[];
 }
 
 // BatchMessage is SendEmailParams without the top-level idempotency_key

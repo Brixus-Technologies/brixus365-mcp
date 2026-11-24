@@ -29,7 +29,9 @@ Add \`cc\`, \`bcc\`, or \`reply_to\` as needed.
 Scheduling: supply \`scheduled_at\` (ISO 8601, ≤30 days out) to defer delivery.
 Deduplication: supply \`idempotency_key\` to safely retry without double-sending.
 
-Returns \`messageId\` (use with \`brixus_get_email\` to check delivery status).`,
+Returns \`messageId\` (use with \`brixus_get_email\` to check delivery status).
+\`messageId\` is the first To's; each address gets its own copy; addresses that
+weren't sent are listed in \`failedRecipients\`.`,
       inputSchema: SendEmailInputSchema,
       annotations: {
         readOnlyHint: false,
@@ -77,6 +79,9 @@ Returns \`messageId\` (use with \`brixus_get_email\` to check delivery status).`
           messageId: resp.messageId,
           status: resp.status,
           from: resp.from,
+          // Always present, like the API: [] means every address was sent. `??` covers an
+          // API that predates per-address copies.
+          failedRecipients: resp.failedRecipients ?? [],
         };
         return {
           content: [{ type: "text" as const, text: JSON.stringify(output, null, 2) }],
