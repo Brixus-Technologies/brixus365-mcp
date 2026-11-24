@@ -67,6 +67,72 @@ describe("brixus_send_email handler", () => {
     expect(parsed.messageId).toBe("msg_preview_123");
   });
 
+  it("passes failedRecipients through, so a partly failed send is not just 'queued'", async () => {
+    const mock = makeMockServer();
+    const failed = [
+      {
+        email: "b@example.com",
+        recipientType: "to",
+        code: "service_busy",
+        message: "Busy right now. Not sent to this address. Try again in a few seconds.",
+      },
+    ];
+    const send = vi.fn(async () => ({
+      messageId: "m1",
+      status: "queued",
+      from: "noreply@example.com",
+      failedRecipients: failed,
+    }));
+    registerSendEmailTool(
+      mock as unknown as Parameters<typeof registerSendEmailTool>[0],
+      makeFakeClient(send as unknown as BrixusClient["sendEmail"]),
+    );
+    const result = await mock.lastHandler()({
+      to: ["a@example.com", "b@example.com"],
+      html: "<p>Hi</p>",
+      subject: "Hi",
+    });
+
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent?.failedRecipients).toEqual(failed);
+    expect(JSON.parse(result.content[0]!.text).failedRecipients).toEqual(failed);
+  });
+
+  it("returns failedRecipients as [] when every address was sent or the API omits it", async () => {
+    for (const apiBody of [
+      { messageId: "m1", status: "queued", from: "x", failedRecipients: [] },
+      { messageId: "m1", status: "queued", from: "x" },
+    ]) {
+      const mock = makeMockServer();
+      const send = vi.fn(async () => apiBody);
+      registerSendEmailTool(
+        mock as unknown as Parameters<typeof registerSendEmailTool>[0],
+        makeFakeClient(send as unknown as BrixusClient["sendEmail"]),
+      );
+      const result = await mock.lastHandler()({
+        to: "alice@example.com",
+        starter_template: "auth-reset",
+      });
+      expect(result.structuredContent).toEqual({
+        messageId: "m1",
+        status: "queued",
+        from: "x",
+        failedRecipients: [],
+      });
+    }
+  });
+
+  it("tells the model what messageId and failedRecipients mean", () => {
+    const mock = makeMockServer();
+    registerSendEmailTool(
+      mock as unknown as Parameters<typeof registerSendEmailTool>[0],
+      makeFakeClient(vi.fn() as unknown as BrixusClient["sendEmail"]),
+    );
+    const config = mock.registerTool.mock.calls[0]![1] as { description: string };
+    expect(config.description).toContain("`messageId` is the first To's");
+    expect(config.description).toContain("`failedRecipients`");
+  });
+
   it("forwards from_name and variables to client", async () => {
     const mock = makeMockServer();
     const send = vi.fn(async () => ({
