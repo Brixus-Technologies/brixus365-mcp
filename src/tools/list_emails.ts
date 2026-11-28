@@ -9,10 +9,17 @@ export function registerListEmailsTool(server: McpServer, client: BrixusClient):
     "brixus_list_emails",
     {
       title: "List transactional emails",
-      description: `List sent and queued transactional emails with optional filters.
+      description: `List transactional emails sent through the API, newest first, with optional filters.
 
-Filter by date range (\`from\`/\`to\`), delivery \`status\`, and paginate with
-\`skip\`/\`limit\`. Use \`brixus_get_email\` for full details on a specific message.`,
+Each item is one address. An email sent to several To, CC or BCC addresses appears as one
+item per address, each with its own \`status\`; \`recipientType\` says which (\`to\`, \`cc\`,
+\`bcc\`) and \`groupId\` links the items of one email (null for older emails listed as a
+single item, and for scheduled emails not yet sent). \`total\` counts items, not emails, and
+includes scheduled, cancelled and failed ones, so it is not a sent count: use
+\`brixus_get_email_analytics\` for that.
+
+Filter by date range (\`from\`/\`to\`), \`status\`, and paginate with \`skip\`/\`limit\`.
+Use \`brixus_get_email\` for full details on one item.`,
       inputSchema: ListEmailsInputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
