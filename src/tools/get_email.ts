@@ -8,12 +8,15 @@ export function registerGetEmailTool(server: McpServer, client: BrixusClient): v
     "brixus_get_email",
     {
       title: "Get email delivery status",
-      description: `Retrieve the current status and metadata for a transactional email.
+      description: `Retrieve the status and details of a transactional email.
 
-Returns delivery status (queued → sent → delivered / bounced / failed),
-timestamps, recipient, subject, and failure reason if applicable.
+\`status\` (queued → sent → delivered / bounced / failed) is for the address in
+\`recipientEmail\`. When the email went to several addresses, \`copies\` lists every address
+with its own \`status\` and \`messageId\`, To first, then CC, then BCC, and \`groupId\`
+identifies the email. Also returns timestamps, subject and the failure reason, if any.
 
-Use the \`messageId\` returned by \`brixus_send_email\` or \`brixus_send_email_batch\`.`,
+Use the \`messageId\` returned by \`brixus_send_email\` or \`brixus_send_email_batch\`, a
+\`failedRecipients[].messageId\`, or an item from \`brixus_list_emails\`.`,
       inputSchema: GetEmailInputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },

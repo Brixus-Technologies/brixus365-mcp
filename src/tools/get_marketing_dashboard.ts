@@ -9,10 +9,15 @@ export function registerGetMarketingDashboardTool(server: McpServer, client: Bri
     "brixus_get_marketing_dashboard",
     {
       title: "Get marketing dashboard overview",
-      description: `Retrieve overview marketing analytics for your Brixus account.
+      description: `Retrieve the marketing overview for your Brixus account.
 
-Returns aggregate stats such as total emails sent, open rate, click rate,
-bounce rate, and recent campaign performance.
+Returns:
+  - \`totalMessagesSent\`: every email address the account has ever sent to (campaigns, automations and API emails), counted per address the way credits and quota count them. Failed sends are not included.
+  - \`totalCampaigns\` and \`recentCampaigns\` (the five newest campaigns).
+  - \`current\` and \`previous\`: campaign and automation sends in the last 30 days and the 30 days before, on the account's time zone (\`timezone\`). Each has \`sent\`, sends by channel and source, and for email \`emailDelivered\`, \`emailUniqueOpens\`, \`emailUniqueClicks\` and \`emailUnsubscribes\`. API emails are not in these; use \`brixus_get_email_analytics\` for them.
+  - \`daily\`: sends per day by channel over the current 30 days.
+
+No rates are returned; divide the counts if you need one.
 
 Requires \`marketing:read\` or \`marketing:write\` API key scope (Pro/Enterprise tier only).`,
       inputSchema: GetMarketingDashboardInputSchema,

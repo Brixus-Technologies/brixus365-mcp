@@ -18,7 +18,9 @@ Limits:
   - Max 100 messages per batch
   - Max 1000 total recipients across all messages
 
-Returns a summary with queued/failed counts and per-message results.`,
+Returns \`results\`, one entry per message in request order: \`idx\`, then \`messageId\` and
+\`status\` ("queued") on success or \`error\` on failure, and \`failedRecipients\` listing any
+of that message's addresses that weren't sent. There are no summary counts; count the entries.`,
       inputSchema: SendBatchInputSchema,
       annotations: {
         readOnlyHint: false,
